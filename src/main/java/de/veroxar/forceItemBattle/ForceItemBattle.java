@@ -11,6 +11,8 @@ import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.events.ConnectionListener;
 import de.veroxar.forceItemBattle.util.Logic;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;

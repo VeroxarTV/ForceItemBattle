@@ -1,6 +1,7 @@
 package de.veroxar.forceItemBattle.util;
 
 import de.veroxar.forceItemBattle.ForceItemBattle;
+import de.veroxar.forceItemBattle.backpack.BackpackManager;
 import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.messages.Messages;
@@ -8,6 +9,9 @@ import de.veroxar.forceItemBattle.tasks.Task;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.translation.TranslationRegistry;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
@@ -28,17 +32,27 @@ public class Logic {
     Configuration playersConfig = data.getConfigs().getPlayersConfig();
     Map<UUID, Integer> playerPointsMap = new HashMap<>();
     JavaPlugin instance = data.getInstance();
+    BackpackManager backpackManager = data.getBackpackManager();
+
+    public Component getCurrentItemName(Player player) {
+        UUID uuid = player.getUniqueId();
+        if (hasTask(player)) {
+            Material material = taskManager.getTask(uuid).getMaterial();
+            return Component.translatable(material.translationKey()).color(NamedTextColor.GOLD);
+        }
+        return Component.text("");
+    }
 
     public void newTask(Player player) {
         UUID uuid = player.getUniqueId();
         Task task = taskManager.getTask(uuid);
         Material material = task.getMaterial();
-        String materialName = ItemStack.of(material).getI18NDisplayName();
+
         createTeam(player);
-        BossBar bossBar = BossBar.bossBar(Component.text(materialName), 1, BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS);
-        player.sendMessage(Messages.PREFIX + ChatColor.GRAY + "Nächste Aufgabe: " + ChatColor.GOLD + materialName);
-        player.showBossBar(bossBar);
-        player.getScoreboard().getTeam(player.getName()).setSuffix(ChatColor.GRAY + " [" + ChatColor.GOLD + materialName + ChatColor.GRAY + "]");
+        player.sendMessage(Messages.COMPONENT_PREFIX.append(Component.text("Nächste Aufgabe: ").color(NamedTextColor.GRAY)
+                .append(getCurrentItemName(player))));
+        player.getScoreboard().getTeam(player.getName()).suffix(Component.text(" [").color(NamedTextColor.GRAY)
+                .append(getCurrentItemName(player).append(Component.text("]").color(NamedTextColor.GRAY))));
         showBlockAbovePlayer(player, material);
         checkForItem(player);
     }
@@ -64,24 +78,18 @@ public class Logic {
     }
 
     public void completedTask(Player player) {
-        UUID uuid = player.getUniqueId();
-        Task task = taskManager.getTask(uuid);
-        Material material = task.getMaterial();
-        String materialName = ItemStack.of(material).getI18NDisplayName();
-        removeTask(player);
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
-        player.sendMessage(Messages.PREFIX + ChatColor.GRAY + "Aufgabe " + ChatColor.GOLD + materialName + ChatColor.GREEN + " geschafft!");
+        player.sendMessage(Messages.COMPONENT_PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
+                .append(getCurrentItemName(player).append(Component.text(" geschafft!").color(NamedTextColor.GREEN)))));
         addPoint(player);
+        removeTask(player);
         newTask(player);
     }
 
     public void skipTask(Player player) {
-        UUID uuid = player.getUniqueId();
-        Task task = taskManager.getTask(uuid);
-        Material material = task.getMaterial();
-        String materialName = ItemStack.of(material).getI18NDisplayName();
+        player.sendMessage(Messages.COMPONENT_PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
+                .append(getCurrentItemName(player).append(Component.text(" übersprungen").color(NamedTextColor.GREEN)))));
         removeTask(player);
-        player.sendMessage(Messages.PREFIX + ChatColor.GRAY + "Aufgabe " + ChatColor.GOLD + materialName + ChatColor.GREEN + " übersprungen!");
         newTask(player);
     }
 
@@ -106,6 +114,13 @@ public class Logic {
     }
 
     public void showBlockAbovePlayer(Player player, Material material) {
+
+        for (ArmorStand armorStand : player.getWorld().getEntitiesByClass(ArmorStand.class)) {
+            if (armorStand.getScoreboardTags().contains(player.getUniqueId().toString())) {
+                armorStand.remove();
+            }
+        }
+
         Location location = player.getLocation();
         ArmorStand armorStand = player.getWorld().spawn(location, ArmorStand.class);
 
@@ -190,6 +205,9 @@ public class Logic {
         joker.setItemMeta(jokerMeta);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
+            UUID uuid = player.getUniqueId();
+
+            backpackManager.getBackpack(uuid).getInventory().remove(Material.BARRIER);
             player.getInventory().setItem(0, joker);
         }
     }

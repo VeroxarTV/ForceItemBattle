@@ -5,6 +5,9 @@ import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.util.Logic;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -86,7 +89,20 @@ public class GameCountdown {
                 continue;
             }
 
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_PURPLE.toString() + ChatColor.BOLD + formatTime(getTime())));
+            // Textkomponenten erstellen und formatieren
+            Component timeComponent = Component.text(formatTime(getTime()))
+                    .color(NamedTextColor.DARK_PURPLE)
+                    .decorate(TextDecoration.BOLD);
+
+            Component separatorComponent = Component.text(" - ")
+                    .color(NamedTextColor.GRAY);
+
+            Component itemNameComponent = logic.getCurrentItemName(player);
+
+            // Zusammenfügen der Komponenten
+            Component actionBarMessage = timeComponent.append(separatorComponent).append(itemNameComponent);
+
+            player.sendActionBar(actionBarMessage);
         }
     }
 
