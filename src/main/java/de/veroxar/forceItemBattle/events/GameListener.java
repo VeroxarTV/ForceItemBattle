@@ -4,13 +4,16 @@ import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.util.Logic;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
@@ -61,5 +64,14 @@ public class GameListener implements Listener {
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         logic.showBlockAbovePlayer(event.getPlayer(), taskManager.getTask(event.getPlayer().getUniqueId()).getMaterial());
+    }
+
+    @EventHandler
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+
+        if (event.getItemDrop().getItemStack().equals(ItemStack.of(Material.BARRIER))) {
+            event.setCancelled(true);
+        }
+
     }
 }

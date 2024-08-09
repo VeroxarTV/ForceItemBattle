@@ -35,10 +35,9 @@ public class StartCommand implements CommandExecutor {
                     player.setHealth(20);
                     player.setFoodLevel(20);
                     player.getWorld().setTime(0);
-                    player.getWorld().setDifficulty(Difficulty.NORMAL);
+                    player.getWorld().setDifficulty(Difficulty.EASY);
                     player.getWorld().setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
                     player.getWorld().setGameRule(GameRule.DO_WEATHER_CYCLE, true);
-                    player.getInventory().clear();
                     logic.giveJokers();
                     logic.newTask(player);
                 }

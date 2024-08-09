@@ -3,6 +3,7 @@ package de.veroxar.forceItemBattle.countdown;
 import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.data.Data;
+import de.veroxar.forceItemBattle.messages.Messages;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.util.Logic;
 import net.kyori.adventure.text.Component;
@@ -116,6 +117,10 @@ public class GameCountdown {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendTitle(ChatColor.GOLD + "Zeit vorbei!", "");
             player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
+            player.teleport(player.getWorld().getSpawnLocation());
+            if (player.hasPermission("forceItemBattle.commands.result")) {
+                player.sendMessage(Messages.PREFIX + ChatColor.GRAY + "Führe /result aus, um das Ergebnis anzuzeigen!");
+            }
         }
         logic.removeAllTasks();
         setTime(instance.getConfig().getInt(".time"));

@@ -67,6 +67,9 @@ public class RandomItemGenerator {
         if (material.name().contains("HEAD"))
             return false;
 
+        if (material.equals(Material.AIR))
+            return false;
+
         return true;
     }
 
