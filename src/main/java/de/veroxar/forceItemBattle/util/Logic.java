@@ -60,7 +60,8 @@ public class Logic {
     public void removeTask(Player player) {
         UUID uuid = player.getUniqueId();
         taskManager.removeTask(uuid);
-        player.getScoreboard().getTeam(player.getName()).setSuffix("");
+        if (player.getScoreboard().getTeam(player.getName()) != null)
+            player.getScoreboard().getTeam(player.getName()).setSuffix("");
         for (ArmorStand armorStand : player.getWorld().getEntitiesByClass(ArmorStand.class)) {
             if (armorStand.getScoreboardTags().contains(player.getUniqueId().toString())) {
                 armorStand.remove();
