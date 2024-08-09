@@ -153,6 +153,7 @@ public class Logic {
             }
             playerPointsMap.put(uuid, newPoints);
         }
+        savePoints();
     }
 
     public void savePoints() {
