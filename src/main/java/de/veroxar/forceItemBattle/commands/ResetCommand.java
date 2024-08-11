@@ -28,7 +28,7 @@ public class ResetCommand implements CommandExecutor {
 
         if (args.length == 0) {
             instance.reloadConfig();
-            logic.resetPoints();
+            logic.resetPlayersConfig();
             backpackManager.clear();
             if (instance.getConfig().getInt(".time") != 0) {
                 gameCountdown.setTime(instance.getConfig().getInt(".time"));

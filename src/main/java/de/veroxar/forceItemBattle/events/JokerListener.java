@@ -1,6 +1,7 @@
 package de.veroxar.forceItemBattle.events;
 
 import de.veroxar.forceItemBattle.ForceItemBattle;
+import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
@@ -14,6 +15,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public class JokerListener implements Listener {
 
@@ -21,6 +23,7 @@ public class JokerListener implements Listener {
     Logic logic = data.getLogic();
     TaskManager taskManager = data.getTaskManager();
     GameCountdown gameCountdown = data.getGameCountdown();
+    Configuration playersConfig = data.getConfigs().getPlayersConfig();
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
@@ -32,6 +35,7 @@ public class JokerListener implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (event.getItem() != null && event.getItem().getType() == Material.BARRIER) {
                 Player player = event.getPlayer();
+                UUID uuid = player.getUniqueId();
                 ItemStack item = player.getInventory().getItemInMainHand();
 
                 if (item.getAmount() > 0) {
@@ -46,6 +50,9 @@ public class JokerListener implements Listener {
                     failed.clear();
                 }
                 logic.completedTask(player);
+                int jokersLeft = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".jokersLeft");
+                playersConfig.toFileConfiguration().set(uuid.toString() + ".jokersLeft", jokersLeft - 1);
+                playersConfig.saveConfiguration();
                 event.setCancelled(true);
             }
         }

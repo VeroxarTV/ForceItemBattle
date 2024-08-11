@@ -3,6 +3,7 @@ package de.veroxar.forceItemBattle.util;
 import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.backpack.BackpackManager;
 import de.veroxar.forceItemBattle.config.Configuration;
+import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.messages.Messages;
 import de.veroxar.forceItemBattle.tasks.Task;
@@ -18,6 +19,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,8 +33,9 @@ public class Logic {
     Map<UUID, Integer> playerPointsMap = new HashMap<>();
     JavaPlugin instance = data.getInstance();
     BackpackManager backpackManager = data.getBackpackManager();
+    GameCountdown gameCountdown = data.getGameCountdown();
 
-    public Component getCurrentItemName(Player player) {
+    public Component getCurrentItemName(@NotNull Player player) {
         UUID uuid = player.getUniqueId();
         if (hasTask(player)) {
             Material material = taskManager.getTask(uuid).getMaterial();
@@ -41,7 +44,7 @@ public class Logic {
         return Component.text("");
     }
 
-    public void newTask(Player player) {
+    public void newTask(@NotNull Player player) {
         UUID uuid = player.getUniqueId();
         Task task = taskManager.getTask(uuid);
         Material material = task.getMaterial();
@@ -55,7 +58,7 @@ public class Logic {
         checkForItem(player);
     }
 
-    public void removeTask(Player player) {
+    public void removeTask(@NotNull Player player) {
         UUID uuid = player.getUniqueId();
         taskManager.removeTask(uuid);
         if (player.getScoreboard().getTeam(player.getName()) != null)
@@ -76,35 +79,39 @@ public class Logic {
         }
     }
 
-    public void completedTask(Player player) {
+    public void completedTask(@NotNull Player player) {
+        UUID uuid = player.getUniqueId();
+        Material material = taskManager.getTask(uuid).getMaterial();
+        int time = gameCountdown.getTime();
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
         player.sendMessage(Messages.COMPONENT_PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
                 .append(getCurrentItemName(player).append(Component.text(" geschafft!").color(NamedTextColor.GREEN)))));
         addPoint(player);
+        taskManager.createCompletedTask(uuid, material, time);
         removeTask(player);
         newTask(player);
     }
 
-    public void skipTask(Player player) {
+    public void skipTask(@NotNull Player player) {
         player.sendMessage(Messages.COMPONENT_PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
                 .append(getCurrentItemName(player).append(Component.text(" übersprungen").color(NamedTextColor.GREEN)))));
         removeTask(player);
         newTask(player);
     }
 
-    public boolean hasTask(Player player) {
+    public boolean hasTask(@NotNull Player player) {
         UUID uuid = player.getUniqueId();
         return taskManager.hasTask(uuid);
     }
 
-    public void checkForItem(Player player) {
+    public void checkForItem(@NotNull Player player) {
         UUID uuid = player.getUniqueId();
         Task task = taskManager.getTask(uuid);
         if (player.getInventory().contains(task.getMaterial()))
                 completedTask(player);
     }
 
-    public void createTeam(Player player) {
+    public void createTeam(@NotNull Player player) {
         Scoreboard scoreboard = player.getScoreboard();
         if (scoreboard.getTeam(player.getName()) == null) {
             Team players = scoreboard.registerNewTeam(player.getName());
@@ -112,7 +119,7 @@ public class Logic {
         }
     }
 
-    public void showBlockAbovePlayer(Player player, Material material) {
+    public void showBlockAbovePlayer(@NotNull Player player, Material material) {
 
         for (ArmorStand armorStand : player.getWorld().getEntitiesByClass(ArmorStand.class)) {
             if (armorStand.getScoreboardTags().contains(player.getUniqueId().toString())) {
@@ -135,7 +142,7 @@ public class Logic {
         player.addPassenger(armorStand);
     }
 
-    public void addPoint(Player player) {
+    public void addPoint(@NotNull Player player) {
         UUID uuid = player.getUniqueId();
 
         if (playerPointsMap.containsKey(uuid)) {
@@ -144,7 +151,7 @@ public class Logic {
             int newPoints = currentPoints + 1;
             playerPointsMap.put(uuid, newPoints);
         } else {
-            int configPoints = playersConfig.toFileConfiguration().getInt("points." + uuid.toString());
+            int configPoints = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".points");
             int newPoints;
             if (configPoints != 0) {
                 newPoints = configPoints + 1;
@@ -163,33 +170,33 @@ public class Logic {
 
             if (playerPointsMap.containsKey(uuid)) {
                 points = points + playerPointsMap.get(uuid);
-                playersConfig.toFileConfiguration().set("points." + uuid.toString(), points);
+                playersConfig.toFileConfiguration().set(uuid.toString() + ".points", points);
                 continue;
-            } else if (playersConfig.toFileConfiguration().contains("points." + uuid.toString())) {
-                points = playersConfig.toFileConfiguration().getInt("points." + uuid.toString());
+            } else if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".points")) {
+                points = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".points");
             }
 
-            playersConfig.toFileConfiguration().set("points." + uuid.toString(), points);
+            playersConfig.toFileConfiguration().set(uuid.toString() + ".points", points);
         }
         playersConfig.saveConfiguration();
     }
 
-    public int getPoints(Player player) {
+    public int getPoints(@NotNull Player player) {
         UUID uuid = player.getUniqueId();
 
         if (playerPointsMap.containsKey(uuid)) {
             return playerPointsMap.get(uuid);
         }
 
-        if (playersConfig.toFileConfiguration().contains("points." + uuid.toString())) {
-            return playersConfig.toFileConfiguration().getInt("points." + uuid.toString());
+        if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".points")) {
+            return playersConfig.toFileConfiguration().getInt(uuid.toString() + ".points");
         }
         return 0;
     }
 
-    public void resetPoints() {
+    public void resetPlayersConfig() {
         playerPointsMap.clear();
-        playersConfig.toFileConfiguration().set("points", null);
+        playersConfig.toFileConfiguration().set("", null);
         playersConfig.saveConfiguration();
     }
 
@@ -207,8 +214,36 @@ public class Logic {
         for (Player player : Bukkit.getOnlinePlayers()) {
             UUID uuid = player.getUniqueId();
 
+            if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".jokersLeft")) {
+                 amount = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".jokersLeft");
+            }
+
+
             backpackManager.getBackpack(uuid).getInventory().remove(Material.BARRIER);
             player.getInventory().setItem(0, joker);
+            playersConfig.toFileConfiguration().set(uuid.toString() + ".jokersLeft", amount);
+            playersConfig.saveConfiguration();
         }
+    }
+
+    public void giveJokerToPlayer(Player player) {
+        UUID uuid = player.getUniqueId();
+        int amount = instance.getConfig().getInt("joker");
+
+        if (amount <= 0)
+            amount = 5;
+        ItemStack joker = new ItemStack(Material.BARRIER, amount);
+        ItemMeta jokerMeta = joker.getItemMeta();
+        jokerMeta.setDisplayName(ChatColor.GOLD + "Joker");
+        joker.setItemMeta(jokerMeta);
+        if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".jokersLeft")) {
+            amount = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".jokersLeft");
+        }
+
+
+        backpackManager.getBackpack(uuid).getInventory().remove(Material.BARRIER);
+        player.getInventory().setItem(0, joker);
+        playersConfig.toFileConfiguration().set(uuid.toString() + ".jokersLeft", amount);
+        playersConfig.saveConfiguration();
     }
 }

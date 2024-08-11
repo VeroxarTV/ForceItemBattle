@@ -1,6 +1,8 @@
 package de.veroxar.forceItemBattle.events;
 
 import de.veroxar.forceItemBattle.ForceItemBattle;
+import de.veroxar.forceItemBattle.config.Configs;
+import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.util.Logic;
@@ -64,14 +66,13 @@ public class GameListener implements Listener {
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         logic.showBlockAbovePlayer(event.getPlayer(), taskManager.getTask(event.getPlayer().getUniqueId()).getMaterial());
+        logic.giveJokerToPlayer(event.getPlayer());
     }
 
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
-
         if (event.getItemDrop().getItemStack().equals(ItemStack.of(Material.BARRIER))) {
             event.setCancelled(true);
         }
-
     }
 }

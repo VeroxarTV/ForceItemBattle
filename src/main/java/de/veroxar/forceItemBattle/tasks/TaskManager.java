@@ -13,9 +13,11 @@ public class TaskManager {
     JavaPlugin instance = data.getInstance();
     Configuration taskConfig = data.getConfigs().getTaskConfig();
     private final Map<UUID, Task> map;
+    private final Map<UUID, List<CompletedTask>> map2;
 
     public TaskManager() {
         map = new HashMap<>();
+        map2 = new HashMap<>();
 
         load();
     }
@@ -44,6 +46,20 @@ public class TaskManager {
     public boolean hasTask(UUID uuid) {
         return map.containsKey(uuid);
     }
+
+     public void createCompletedTask(UUID uuid, Material material, Integer time) {
+        List<CompletedTask> list = getCompletedTaskList(uuid);
+        CompletedTask completedTask = new CompletedTask(uuid, material, time);
+        list.add(completedTask);
+        map2.put(uuid, list);
+     }
+
+     public List<CompletedTask> getCompletedTaskList(UUID uuid) {
+        if (map2.containsKey(uuid)) {
+            return map2.get(uuid);
+        }
+         return new ArrayList<>();
+     }
 
     private void load() {
         List<String> uuids = taskConfig.toFileConfiguration().getStringList("tasks");
