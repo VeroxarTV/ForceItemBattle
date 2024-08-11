@@ -66,7 +66,7 @@ public class GameCountdown {
         this.time = time;
     }
 
-    private String formatTime(long totalSeconds) {
+    public String formatTime(long totalSeconds) {
         long hours = (totalSeconds % 86400) / 3600;
         long minutes = (totalSeconds % 3600) / 60;
         long seconds = totalSeconds % 60;

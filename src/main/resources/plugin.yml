@@ -18,3 +18,5 @@ commands:
     permission: forceItemBattle.commands.skip
   result:
     permission: forceItemBattle.commands.result
+  completed:
+    usage: /completed

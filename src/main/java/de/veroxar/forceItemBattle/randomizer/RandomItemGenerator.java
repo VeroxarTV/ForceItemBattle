@@ -25,49 +25,34 @@ public class RandomItemGenerator {
 
     private boolean isSurvivalObtainable(Material material) {
 
-        if (material.getCreativeCategory() == null)
-            return false;
-
-        if (material.name().contains("STRUCTURE"))
-            return false;
-
-        if (material.equals(Material.GRASS_BLOCK))
-            return false;
-
-        if (material.equals(Material.DIRT_PATH))
-            return false;
-
-        if (material.name().contains("SPAWN"))
-            return false;
-
         if (material.equals(Material.BEDROCK))
             return false;
 
-        if (material.equals(Material.VAULT))
+        if (material.equals(Material.AIR))
             return false;
 
         if (material.equals(Material.DEBUG_STICK))
             return false;
 
-        if (material.equals(Material.BARRIER))
+        if (material.equals(Material.COMMAND_BLOCK))
             return false;
 
-        if (material.name().contains("POTION"))
+        if (material.equals(Material.CHAIN_COMMAND_BLOCK))
             return false;
 
-        if (material.name().contains("INFESTED"))
+        if (material.equals(Material.REPEATING_COMMAND_BLOCK))
             return false;
 
-        if (material.name().contains("DISC"))
+        if (material.name().contains("PLAYER"))
             return false;
 
-        if (material.name().contains("BANNER_PATTERN"))
+        if (material.name().contains("SPAWN"))
             return false;
 
-        if (material.name().contains("HEAD"))
+        if (material.equals(Material.VAULT))
             return false;
 
-        if (material.equals(Material.AIR))
+        if (material.name().contains("CANDLE_CAKE"))
             return false;
 
         return true;

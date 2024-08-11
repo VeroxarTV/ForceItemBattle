@@ -5,6 +5,8 @@ import de.veroxar.forceItemBattle.backpack.BackpackManager;
 import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.messages.Messages;
+import de.veroxar.forceItemBattle.tasks.CompletedTask;
+import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.util.Logic;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,6 +17,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.UUID;
+
 public class ResetCommand implements CommandExecutor {
 
     Data data = ForceItemBattle.getData();
@@ -22,6 +27,7 @@ public class ResetCommand implements CommandExecutor {
     JavaPlugin instance = data.getInstance();
     Logic logic = data.getLogic();
     BackpackManager backpackManager = data.getBackpackManager();
+    TaskManager taskManager = data.getTaskManager();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
@@ -37,6 +43,10 @@ public class ResetCommand implements CommandExecutor {
             }
 
             for (Player player : Bukkit.getOnlinePlayers()) {
+                UUID uuid = player.getUniqueId();
+                List<CompletedTask> list = taskManager.getCompletedTaskList(uuid);
+                list.clear();
+                taskManager.setCompletedTaskList(uuid, list);
                 logic.removeTask(player);
                 player.getInventory().clear();
             }

@@ -47,9 +47,9 @@ public class TaskManager {
         return map.containsKey(uuid);
     }
 
-     public void createCompletedTask(UUID uuid, Material material, Integer time) {
+     public void createCompletedTask(UUID uuid, Material material, Integer time, boolean usedJoker) {
         List<CompletedTask> list = getCompletedTaskList(uuid);
-        CompletedTask completedTask = new CompletedTask(uuid, material, time);
+        CompletedTask completedTask = new CompletedTask(uuid, material, time, usedJoker);
         list.add(completedTask);
         map2.put(uuid, list);
      }
@@ -60,6 +60,10 @@ public class TaskManager {
         }
          return new ArrayList<>();
      }
+
+    public void setCompletedTaskList(UUID uuid ,List<CompletedTask> completedTaskList) {
+        map2.replace(uuid, completedTaskList);
+    }
 
     private void load() {
         List<String> uuids = taskConfig.toFileConfiguration().getStringList("tasks");

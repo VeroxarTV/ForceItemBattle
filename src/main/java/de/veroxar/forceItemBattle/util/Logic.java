@@ -33,7 +33,13 @@ public class Logic {
     Map<UUID, Integer> playerPointsMap = new HashMap<>();
     JavaPlugin instance = data.getInstance();
     BackpackManager backpackManager = data.getBackpackManager();
-    GameCountdown gameCountdown = data.getGameCountdown();
+    GameCountdown gameCountdown;
+
+    public Logic(){
+        data.setLogic(this);
+        data.setGameCountdown(new GameCountdown());
+        gameCountdown = data.getGameCountdown();
+    }
 
     public Component getCurrentItemName(@NotNull Player player) {
         UUID uuid = player.getUniqueId();
@@ -79,7 +85,7 @@ public class Logic {
         }
     }
 
-    public void completedTask(@NotNull Player player) {
+    public void completedTask(@NotNull Player player, boolean usedJoker) {
         UUID uuid = player.getUniqueId();
         Material material = taskManager.getTask(uuid).getMaterial();
         int time = gameCountdown.getTime();
@@ -87,7 +93,7 @@ public class Logic {
         player.sendMessage(Messages.COMPONENT_PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
                 .append(getCurrentItemName(player).append(Component.text(" geschafft!").color(NamedTextColor.GREEN)))));
         addPoint(player);
-        taskManager.createCompletedTask(uuid, material, time);
+        taskManager.createCompletedTask(uuid, material, time, usedJoker);
         removeTask(player);
         newTask(player);
     }
@@ -108,7 +114,7 @@ public class Logic {
         UUID uuid = player.getUniqueId();
         Task task = taskManager.getTask(uuid);
         if (player.getInventory().contains(task.getMaterial()))
-                completedTask(player);
+                completedTask(player, false);
     }
 
     public void createTeam(@NotNull Player player) {
@@ -196,7 +202,11 @@ public class Logic {
 
     public void resetPlayersConfig() {
         playerPointsMap.clear();
-        playersConfig.toFileConfiguration().set("", null);
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            playersConfig.toFileConfiguration().set(player.getUniqueId().toString(), null);
+        }
+
         playersConfig.saveConfiguration();
     }
 
@@ -204,19 +214,18 @@ public class Logic {
 
         int amount = instance.getConfig().getInt("joker");
 
-        if (amount <= 0)
-            amount = 5;
-        ItemStack joker = new ItemStack(Material.BARRIER, amount);
-        ItemMeta jokerMeta = joker.getItemMeta();
-        jokerMeta.setDisplayName(ChatColor.GOLD + "Joker");
-        joker.setItemMeta(jokerMeta);
-
         for (Player player : Bukkit.getOnlinePlayers()) {
             UUID uuid = player.getUniqueId();
 
             if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".jokersLeft")) {
                  amount = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".jokersLeft");
             }
+            if (amount <= 0)
+                amount = 5;
+            ItemStack joker = new ItemStack(Material.BARRIER, amount);
+            ItemMeta jokerMeta = joker.getItemMeta();
+            jokerMeta.setDisplayName(ChatColor.GOLD + "Joker");
+            joker.setItemMeta(jokerMeta);
 
 
             backpackManager.getBackpack(uuid).getInventory().remove(Material.BARRIER);
@@ -232,14 +241,13 @@ public class Logic {
 
         if (amount <= 0)
             amount = 5;
+        if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".jokersLeft")) {
+            amount = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".jokersLeft");
+        }
         ItemStack joker = new ItemStack(Material.BARRIER, amount);
         ItemMeta jokerMeta = joker.getItemMeta();
         jokerMeta.setDisplayName(ChatColor.GOLD + "Joker");
         joker.setItemMeta(jokerMeta);
-        if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".jokersLeft")) {
-            amount = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".jokersLeft");
-        }
-
 
         backpackManager.getBackpack(uuid).getInventory().remove(Material.BARRIER);
         player.getInventory().setItem(0, joker);

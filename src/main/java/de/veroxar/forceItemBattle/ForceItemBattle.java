@@ -46,6 +46,7 @@ public final class ForceItemBattle extends JavaPlugin {
         Objects.requireNonNull(getCommand("reset")).setExecutor(new ResetCommand());
         Objects.requireNonNull(getCommand("skip")).setExecutor(new SkipCommand());
         Objects.requireNonNull(getCommand("result")).setExecutor(new ResultCommand());
+        Objects.requireNonNull(getCommand("completed")).setExecutor(new CompletedCommand());
     }
 
     public void initializeData(){
@@ -55,7 +56,6 @@ public final class ForceItemBattle extends JavaPlugin {
         data.setBackpackManager(new BackpackManager());
         data.setTaskManager(new TaskManager());
         data.setLogic(new Logic());
-        data.setGameCountdown(new GameCountdown());
         data.setRadomItemGenerator(new RandomItemGenerator());
     }
 

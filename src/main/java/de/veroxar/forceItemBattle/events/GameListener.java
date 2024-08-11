@@ -6,16 +6,18 @@ import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.util.Logic;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
@@ -32,7 +34,7 @@ public class GameListener implements Listener {
             Player player = (Player) event.getEntity();
             UUID uuid = player.getUniqueId();
             if (event.getItem().getItemStack().getType().equals(taskManager.getTask(uuid).getMaterial())) {
-                logic.completedTask(player);
+                logic.completedTask(player, false);
             }
         }
     }
@@ -45,7 +47,7 @@ public class GameListener implements Listener {
 
             if (event.getCurrentItem() != null)
                 if (event.getCurrentItem().getType().equals(taskManager.getTask(uuid).getMaterial())) {
-                    logic.completedTask(player);
+                    logic.completedTask(player, false);
             }
         }
     }
@@ -58,7 +60,7 @@ public class GameListener implements Listener {
 
             if (event.getCursor()!= null)
                 if (event.getCursor().getType().equals(taskManager.getTask(uuid).getMaterial())) {
-                    logic.completedTask(player);
+                    logic.completedTask(player, false);
                 }
         }
     }
@@ -71,8 +73,13 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
-        if (event.getItemDrop().getItemStack().equals(ItemStack.of(Material.BARRIER))) {
+        if (event.getItemDrop().getItemStack().getType().equals(Material.BARRIER)) {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        event.getDrops().removeIf(drop -> drop.getType().equals(Material.BARRIER));
     }
 }

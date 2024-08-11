@@ -49,9 +49,10 @@ public class JokerListener implements Listener {
                     player.getWorld().dropItem(player.getLocation(), ItemStack.of(currentTaskItem));
                     failed.clear();
                 }
-                logic.completedTask(player);
+                logic.completedTask(player, true);
                 int jokersLeft = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".jokersLeft");
-                playersConfig.toFileConfiguration().set(uuid.toString() + ".jokersLeft", jokersLeft - 1);
+                int newJokersLeft = jokersLeft - 1;
+                playersConfig.toFileConfiguration().set(uuid.toString() + ".jokersLeft", newJokersLeft);
                 playersConfig.saveConfiguration();
                 event.setCancelled(true);
             }
