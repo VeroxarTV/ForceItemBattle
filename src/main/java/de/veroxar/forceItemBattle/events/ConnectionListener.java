@@ -27,7 +27,7 @@ public class ConnectionListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         event.setQuitMessage(ChatColor.RED + "- " + ChatColor.GRAY + event.getPlayer().getName());
         if (Bukkit.getOnlinePlayers().size() - 1 <= 0) {
-            timer.setRunning(false);
+            //timer.setRunning(false);
             gameCountdown.setRunning(false);
         }
     }

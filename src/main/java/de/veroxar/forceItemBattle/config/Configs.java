@@ -6,6 +6,7 @@ public class Configs {
     final Configuration countdownConfig = new Configuration();
     final Configuration taskConfig = new Configuration();
     final Configuration playersConfig = new Configuration();
+    final Configuration completedTaskConfig = new Configuration();
 
     public Configs() {
         createConfigs();
@@ -17,6 +18,7 @@ public class Configs {
         countdownConfig.createConfiguration("countdown");
         taskConfig.createConfiguration("task");
         playersConfig.createConfiguration("players");
+        completedTaskConfig.createConfiguration("completed_task");
     }
 
     public Configuration getBackpackConfig() {
@@ -33,5 +35,8 @@ public class Configs {
     }
     public Configuration getPlayersConfig() {
         return playersConfig;
+    }
+    public Configuration getCompletedTaskConfig() {
+        return completedTaskConfig;
     }
 }

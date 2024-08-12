@@ -3,7 +3,6 @@ package de.veroxar.forceItemBattle;
 import de.veroxar.forceItemBattle.backpack.BackpackManager;
 import de.veroxar.forceItemBattle.commands.*;
 import de.veroxar.forceItemBattle.config.Configs;
-import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.events.GameListener;
 import de.veroxar.forceItemBattle.events.JokerListener;
 import de.veroxar.forceItemBattle.randomizer.RandomItemGenerator;
@@ -11,8 +10,7 @@ import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.events.ConnectionListener;
 import de.veroxar.forceItemBattle.util.Logic;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import de.veroxar.forceItemBattle.util.ResultInventoryManager;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,7 +44,6 @@ public final class ForceItemBattle extends JavaPlugin {
         Objects.requireNonNull(getCommand("reset")).setExecutor(new ResetCommand());
         Objects.requireNonNull(getCommand("skip")).setExecutor(new SkipCommand());
         Objects.requireNonNull(getCommand("result")).setExecutor(new ResultCommand());
-        Objects.requireNonNull(getCommand("completed")).setExecutor(new CompletedCommand());
     }
 
     public void initializeData(){
@@ -57,14 +54,16 @@ public final class ForceItemBattle extends JavaPlugin {
         data.setTaskManager(new TaskManager());
         data.setLogic(new Logic());
         data.setRadomItemGenerator(new RandomItemGenerator());
+        data.setResultInventoryManager(new ResultInventoryManager());
     }
 
     public void saveConfigs(){
         //data.getTimer().saveTime();
         data.getBackpackManager().save();
         data.getGameCountdown().saveTime();
-        data.getTaskManager().save();
+        data.getTaskManager().saveTasks();
         data.getLogic().savePoints();
+        data.getTaskManager().saveCompletedTasks();
     }
 
     @Override

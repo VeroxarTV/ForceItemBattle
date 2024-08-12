@@ -12,6 +12,7 @@ public class TaskManager {
     Data data = ForceItemBattle.getData();
     JavaPlugin instance = data.getInstance();
     Configuration taskConfig = data.getConfigs().getTaskConfig();
+    Configuration completedTaskConfig = data.getConfigs().getCompletedTaskConfig();
     private final Map<UUID, Task> map;
     private final Map<UUID, List<CompletedTask>> map2;
 
@@ -19,7 +20,8 @@ public class TaskManager {
         map = new HashMap<>();
         map2 = new HashMap<>();
 
-        load();
+        loadTasks();
+        loadCompletedTasks();
     }
 
     public Task getTask(UUID uuid) {
@@ -41,6 +43,8 @@ public class TaskManager {
             Task task = map.get(uuid);
             map.remove(uuid, task);
         }
+        if (taskConfig.toFileConfiguration().contains(uuid.toString() + ".task"))
+            taskConfig.toFileConfiguration().set(uuid.toString(), null);
     }
 
     public boolean hasTask(UUID uuid) {
@@ -51,6 +55,10 @@ public class TaskManager {
         List<CompletedTask> list = getCompletedTaskList(uuid);
         CompletedTask completedTask = new CompletedTask(uuid, material, time, usedJoker);
         list.add(completedTask);
+        if (map2.containsKey(uuid)) {
+            map2.replace(uuid, list);
+            return;
+        }
         map2.put(uuid, list);
      }
 
@@ -62,23 +70,27 @@ public class TaskManager {
      }
 
     public void setCompletedTaskList(UUID uuid ,List<CompletedTask> completedTaskList) {
-        map2.replace(uuid, completedTaskList);
+        if (map2.containsKey(uuid)) {
+            map2.replace(uuid, completedTaskList);
+            return;
+        }
+        map2.put(uuid, completedTaskList);
     }
 
-    private void load() {
+    private void loadTasks() {
         List<String> uuids = taskConfig.toFileConfiguration().getStringList("tasks");
 
         uuids.forEach(s ->{
             UUID uuid = UUID.fromString(s);
 
-            String material = taskConfig.toFileConfiguration().getString("task." + s);
+            String material = taskConfig.toFileConfiguration().getString(s + ".task");
 
             assert material != null;
             map.put(uuid, new Task(uuid, Material.getMaterial(material)));
         });
     }
 
-    public void save(){
+    public void saveTasks(){
 
         List<String> uuids = new ArrayList<>();
 
@@ -87,8 +99,42 @@ public class TaskManager {
         }
 
         taskConfig.toFileConfiguration().set("tasks", uuids);
-        map.forEach((uuid, task) -> taskConfig.toFileConfiguration().set("task." + uuid.toString(), task.getMaterial().name()));
+        map.forEach((uuid, task) -> taskConfig.toFileConfiguration().set(uuid.toString() + ".task", task.getMaterial().name()));
         taskConfig.saveConfiguration();
     }
 
+    private void loadCompletedTasks() {
+        List<String> uuids = completedTaskConfig.toFileConfiguration().getStringList("completed_tasks");
+        uuids.forEach(s -> {
+            UUID uuid = UUID.fromString(s);
+            List<String> completedTasks = completedTaskConfig.toFileConfiguration().getStringList(uuid.toString() + ".completed_tasks");
+            List<CompletedTask> completedTaskList = new ArrayList<>(); // Erstelle eine neue Liste für jede UUID
+
+            completedTasks.forEach(s1 -> completedTaskList.add(CompletedTask.fromString(s1)));
+
+            setCompletedTaskList(uuid, completedTaskList);
+        });
+    }
+
+    public void saveCompletedTasks(){
+
+        List<String> uuids = new ArrayList<>();
+
+        for (UUID uuid : map2.keySet()) {
+            uuids.add(uuid.toString());
+        }
+
+        for (String s : uuids) {
+            List<String> completedTasksStringList = new ArrayList<>();
+            UUID uuid = UUID.fromString(s);
+            for (CompletedTask completedTask : map2.get(uuid)) {
+                completedTasksStringList.add(completedTask.toString());
+            }
+            completedTaskConfig.toFileConfiguration().set(uuid.toString() + ".completed_tasks", completedTasksStringList);
+        }
+
+        completedTaskConfig.toFileConfiguration().set("completed_tasks", uuids);
+        completedTaskConfig.saveConfiguration();
+
+    }
 }

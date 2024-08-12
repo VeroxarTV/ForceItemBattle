@@ -21,9 +21,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Logic {
 
@@ -45,7 +43,7 @@ public class Logic {
         UUID uuid = player.getUniqueId();
         if (hasTask(player)) {
             Material material = taskManager.getTask(uuid).getMaterial();
-            return Component.translatable(material.translationKey()).color(NamedTextColor.GOLD);
+            return Component.translatable(Objects.requireNonNull(material.getItemTranslationKey())).color(NamedTextColor.GOLD);
         }
         return Component.text("");
     }
@@ -94,6 +92,7 @@ public class Logic {
                 .append(getCurrentItemName(player).append(Component.text(" geschafft!").color(NamedTextColor.GREEN)))));
         addPoint(player);
         taskManager.createCompletedTask(uuid, material, time, usedJoker);
+        taskManager.saveCompletedTasks();
         removeTask(player);
         newTask(player);
     }
@@ -213,6 +212,8 @@ public class Logic {
     public void giveJokers() {
 
         int amount = instance.getConfig().getInt("joker");
+        if (amount <= 0)
+            amount = 5;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             UUID uuid = player.getUniqueId();
@@ -220,16 +221,21 @@ public class Logic {
             if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".jokersLeft")) {
                  amount = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".jokersLeft");
             }
-            if (amount <= 0)
-                amount = 5;
+
+            if (amount == 0)
+                return;
+
             ItemStack joker = new ItemStack(Material.BARRIER, amount);
             ItemMeta jokerMeta = joker.getItemMeta();
             jokerMeta.setDisplayName(ChatColor.GOLD + "Joker");
             joker.setItemMeta(jokerMeta);
 
-
             backpackManager.getBackpack(uuid).getInventory().remove(Material.BARRIER);
-            player.getInventory().setItem(0, joker);
+
+            if (player.getInventory().contains(Material.BARRIER))
+                player.getInventory().remove(Material.BARRIER);
+
+            player.getInventory().addItem(joker);
             playersConfig.toFileConfiguration().set(uuid.toString() + ".jokersLeft", amount);
             playersConfig.saveConfiguration();
         }
@@ -243,6 +249,8 @@ public class Logic {
             amount = 5;
         if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".jokersLeft")) {
             amount = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".jokersLeft");
+            if (amount == 0)
+                return;
         }
         ItemStack joker = new ItemStack(Material.BARRIER, amount);
         ItemMeta jokerMeta = joker.getItemMeta();
@@ -250,8 +258,25 @@ public class Logic {
         joker.setItemMeta(jokerMeta);
 
         backpackManager.getBackpack(uuid).getInventory().remove(Material.BARRIER);
-        player.getInventory().setItem(0, joker);
+
+        if (player.getInventory().contains(Material.BARRIER))
+            player.getInventory().remove(Material.BARRIER);
+
+        player.getInventory().addItem(joker);
         playersConfig.toFileConfiguration().set(uuid.toString() + ".jokersLeft", amount);
         playersConfig.saveConfiguration();
+    }
+
+    public List<Map.Entry<UUID, Integer>> getPlayerPlacement() {
+        Map<UUID, Integer> playerPoints = new HashMap<>();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            int points = getPoints(player);
+            if (points > 0) {
+                playerPoints.put(player.getUniqueId(), points);
+            }
+        }
+
+        return new ArrayList<>(playerPoints.entrySet());
     }
 }

@@ -55,6 +55,66 @@ public class RandomItemGenerator {
         if (material.name().contains("CANDLE_CAKE"))
             return false;
 
+        if (!(material.isItem()))
+            return false;
+
+        if (material.name().contains("SHERD"))
+            return false;
+
+        if (material.name().contains("TEMPLATE"))
+            return false;
+
+        if (material.equals(Material.ENCHANTED_BOOK))
+            return false;
+
+        if(material.name().contains("OXIDIZED"))
+            return false;
+
+        if (material.name().contains("EXPOSED"))
+            return false;
+
+        if (material.name().contains("DISC"))
+            return false;
+
+        if (material.name().contains("CORAL"))
+            return false;
+
+        if (material.name().contains("ICE"))
+            return false;
+
+        if (material.name().contains("INFESTED"))
+            return false;
+
+        if (material.name().contains("STRUCTURE"))
+            return false;
+
+        if (material.equals(Material.LIGHT))
+            return false;
+
+        if (material.name().contains("WEATHERED"))
+            return false;
+
+        if (material.equals(Material.KNOWLEDGE_BOOK))
+            return false;
+
+        if (material.equals(Material.BUNDLE))
+            return false;
+
+        if (material.equals(Material.FARMLAND))
+            return false;
+
+        if (material.equals(Material.DIRT_PATH))
+            return false;
+
+        if (material.equals(Material.PIGLIN_HEAD))
+            return false;
+
+        if (material.equals(Material.BARRIER))
+            return false;
+
+        if (material.equals(Material.JIGSAW))
+            return false;
+
         return true;
     }
 

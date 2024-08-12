@@ -36,6 +36,7 @@ public class ResetCommand implements CommandExecutor {
             instance.reloadConfig();
             logic.resetPlayersConfig();
             backpackManager.clear();
+            ResultCommand.currentIndex = -1;
             if (instance.getConfig().getInt(".time") != 0) {
                 gameCountdown.setTime(instance.getConfig().getInt(".time"));
             } else {
@@ -47,6 +48,7 @@ public class ResetCommand implements CommandExecutor {
                 List<CompletedTask> list = taskManager.getCompletedTaskList(uuid);
                 list.clear();
                 taskManager.setCompletedTaskList(uuid, list);
+                taskManager.saveCompletedTasks();
                 logic.removeTask(player);
                 player.getInventory().clear();
             }

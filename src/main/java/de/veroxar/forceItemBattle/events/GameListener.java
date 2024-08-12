@@ -6,6 +6,8 @@ import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.util.Logic;
+import de.veroxar.forceItemBattle.util.ResultInventoryManager;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
@@ -15,6 +17,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -27,6 +30,7 @@ public class GameListener implements Listener {
     Data data = ForceItemBattle.getData();
     Logic logic = data.getLogic();
     TaskManager taskManager = data.getTaskManager();
+    ResultInventoryManager resultInventoryManager = data.getResultInventoryManager();
 
     @EventHandler
     public void onEntityPickupItem(EntityPickupItemEvent event) {
@@ -44,6 +48,23 @@ public class GameListener implements Listener {
         if (event.getWhoClicked() instanceof Player) {
             Player player = (Player) event.getWhoClicked();
             UUID uuid = player.getUniqueId();
+
+            if (event.getView().getTitle().toString().equalsIgnoreCase("Geschaffte Aufgaben")) {
+                if (event.getCurrentItem() != null) {
+                    if (event.getCurrentItem().hasItemMeta()) {
+                        if (event.getCurrentItem().getItemMeta().hasDisplayName()) {
+                            if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GREEN + "Nächste Seite")){
+                            resultInventoryManager.switchPages(event.getInventory(), true);
+                            event.setCancelled(true);
+                                } else if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.RED + "Vorherige Seite")) {
+                                    resultInventoryManager.switchPages(event.getInventory(), false);
+                                    event.setCancelled(true);
+                            }
+                        }
+                    }
+                }
+                event.setCancelled(true);
+            }
 
             if (event.getCurrentItem() != null)
                 if (event.getCurrentItem().getType().equals(taskManager.getTask(uuid).getMaterial())) {
@@ -81,5 +102,11 @@ public class GameListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         event.getDrops().removeIf(drop -> drop.getType().equals(Material.BARRIER));
+    }
+
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (event.getView().getTitle().equalsIgnoreCase("Geschaffte Aufgaben")) {
+        }
     }
 }
