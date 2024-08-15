@@ -14,5 +14,5 @@ public class Messages {
             .append(Component.text("] ")
         .color(NamedTextColor.GRAY));
 
-    final public static String NOPLAYER = PREFIX + "§cDieser Befehl ist nur für Spieler gedacht!";
+    final public static Component NOPLAYER = PREFIX.append(Component.text("This command is only intended for players!").color(NamedTextColor.RED));
 }
