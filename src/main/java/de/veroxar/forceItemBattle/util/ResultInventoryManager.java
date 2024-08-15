@@ -336,19 +336,19 @@ public class ResultInventoryManager {
         for (Player players : Bukkit.getOnlinePlayers()) {
             switch (position) {
                 case 3:
-                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.DARK_GRAY).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.DARK_GRAY).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Tasks completed").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.color(NamedTextColor.DARK_GRAY).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 case 2:
-                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GRAY).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GRAY).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Tasks completed").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.color(NamedTextColor.GRAY).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 case 1:
-                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GOLD).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GOLD).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Tasks completed").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.color(NamedTextColor.GOLD).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 default:
-                    players.showTitle(Title.title(Component.text(position + "." + player.getName()), Component.text(logic.getPoints(player) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.showTitle(Title.title(Component.text(position + "." + player.getName()), Component.text(logic.getPoints(player) + " Tasks completed").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.append(playerTXT).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
             }
