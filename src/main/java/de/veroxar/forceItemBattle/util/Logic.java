@@ -8,7 +8,6 @@ import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.messages.Messages;
 import de.veroxar.forceItemBattle.tasks.Task;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
-import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
@@ -43,6 +42,12 @@ public class Logic {
         UUID uuid = player.getUniqueId();
         if (hasTask(player)) {
             Material material = taskManager.getTask(uuid).getMaterial();
+            if (material.name().contains("BANNER_PATTERN")) {
+                Component translation = Component.translatable(Objects.requireNonNull(material.getItemTranslationKey())).color(NamedTextColor.GOLD);
+                Component sep = Component.text(": ").color(NamedTextColor.GRAY);
+                Component desc = Component.translatable(material.getItemTranslationKey() + ".desc").color(NamedTextColor.GOLD);
+                return translation.append(sep).append(desc);
+            }
             return Component.translatable(Objects.requireNonNull(material.getItemTranslationKey())).color(NamedTextColor.GOLD);
         }
         return Component.text("");
@@ -54,9 +59,24 @@ public class Logic {
         Material material = task.getMaterial();
 
         createTeam(player);
-        player.sendMessage(Messages.COMPONENT_PREFIX.append(Component.text("Nächste Aufgabe: ").color(NamedTextColor.GRAY)
+        player.sendMessage(Messages.PREFIX.append(Component.text("Nächste Aufgabe: ").color(NamedTextColor.GRAY)
                 .append(getCurrentItemName(player))));
-        player.getScoreboard().getTeam(player.getName()).suffix(Component.text(" [").color(NamedTextColor.GRAY)
+        Objects.requireNonNull(player.getScoreboard().getTeam(player.getName())).suffix(Component.text(" [").color(NamedTextColor.GRAY)
+                .append(getCurrentItemName(player).append(Component.text("]").color(NamedTextColor.GRAY))));
+        showBlockAbovePlayer(player, material);
+        checkForItem(player);
+    }
+
+    public void setTask(@NotNull Player player, Material material) {
+        UUID uuid = player.getUniqueId();
+        removeTask(player);
+        taskManager.setTask(uuid, material);
+
+        createTeam(player);
+        player.sendMessage(Messages.PREFIX.append(Component.text("Deine Aufgabe wurde neu gesetzt!").color(NamedTextColor.RED)));
+        player.sendMessage(Messages.PREFIX.append(Component.text("Nächste Aufgabe: ").color(NamedTextColor.GRAY)
+                .append(getCurrentItemName(player))));
+        Objects.requireNonNull(player.getScoreboard().getTeam(player.getName())).suffix(Component.text(" [").color(NamedTextColor.GRAY)
                 .append(getCurrentItemName(player).append(Component.text("]").color(NamedTextColor.GRAY))));
         showBlockAbovePlayer(player, material);
         checkForItem(player);
@@ -66,14 +86,11 @@ public class Logic {
         UUID uuid = player.getUniqueId();
         taskManager.removeTask(uuid);
         if (player.getScoreboard().getTeam(player.getName()) != null)
-            player.getScoreboard().getTeam(player.getName()).setSuffix("");
+            Objects.requireNonNull(player.getScoreboard().getTeam(player.getName())).suffix(Component.text(""));
         for (ArmorStand armorStand : player.getWorld().getEntitiesByClass(ArmorStand.class)) {
             if (armorStand.getScoreboardTags().contains(player.getUniqueId().toString())) {
                 armorStand.remove();
             }
-        }
-        for (BossBar bossBar : player.activeBossBars()) {
-            player.hideBossBar(bossBar);
         }
     }
 
@@ -88,7 +105,7 @@ public class Logic {
         Material material = taskManager.getTask(uuid).getMaterial();
         int time = gameCountdown.getTime();
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
-        player.sendMessage(Messages.COMPONENT_PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
+        player.sendMessage(Messages.PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
                 .append(getCurrentItemName(player).append(Component.text(" geschafft!").color(NamedTextColor.GREEN)))));
         addPoint(player);
         taskManager.createCompletedTask(uuid, material, time, usedJoker);
@@ -98,7 +115,7 @@ public class Logic {
     }
 
     public void skipTask(@NotNull Player player) {
-        player.sendMessage(Messages.COMPONENT_PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
+        player.sendMessage(Messages.PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
                 .append(getCurrentItemName(player).append(Component.text(" übersprungen").color(NamedTextColor.GREEN)))));
         removeTask(player);
         newTask(player);
@@ -147,6 +164,14 @@ public class Logic {
         player.addPassenger(armorStand);
     }
 
+    public void removeBlockAbovePlayer(Player player) {
+        for (ArmorStand armorStand : player.getWorld().getEntitiesByClass(ArmorStand.class)) {
+            if (armorStand.getScoreboardTags().contains(player.getUniqueId().toString())) {
+                armorStand.remove();
+            }
+        }
+    }
+
     public void addPoint(@NotNull Player player) {
         UUID uuid = player.getUniqueId();
 
@@ -156,7 +181,7 @@ public class Logic {
             int newPoints = currentPoints + 1;
             playerPointsMap.put(uuid, newPoints);
         } else {
-            int configPoints = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".points");
+            int configPoints = playersConfig.toFileConfiguration().getInt(uuid + ".points");
             int newPoints;
             if (configPoints != 0) {
                 newPoints = configPoints + 1;
@@ -175,13 +200,13 @@ public class Logic {
 
             if (playerPointsMap.containsKey(uuid)) {
                 points = points + playerPointsMap.get(uuid);
-                playersConfig.toFileConfiguration().set(uuid.toString() + ".points", points);
+                playersConfig.toFileConfiguration().set(uuid + ".points", points);
                 continue;
-            } else if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".points")) {
-                points = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".points");
+            } else if (playersConfig.toFileConfiguration().contains(uuid + ".points")) {
+                points = playersConfig.toFileConfiguration().getInt(uuid + ".points");
             }
 
-            playersConfig.toFileConfiguration().set(uuid.toString() + ".points", points);
+            playersConfig.toFileConfiguration().set(uuid + ".points", points);
         }
         playersConfig.saveConfiguration();
     }
@@ -193,8 +218,8 @@ public class Logic {
             return playerPointsMap.get(uuid);
         }
 
-        if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".points")) {
-            return playersConfig.toFileConfiguration().getInt(uuid.toString() + ".points");
+        if (playersConfig.toFileConfiguration().contains(uuid + ".points")) {
+            return playersConfig.toFileConfiguration().getInt(uuid + ".points");
         }
         return 0;
     }
@@ -218,16 +243,16 @@ public class Logic {
         for (Player player : Bukkit.getOnlinePlayers()) {
             UUID uuid = player.getUniqueId();
 
-            if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".jokersLeft")) {
-                 amount = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".jokersLeft");
+            if (playersConfig.toFileConfiguration().contains(uuid + ".jokersLeft")) {
+                 amount = playersConfig.toFileConfiguration().getInt(uuid + ".jokersLeft");
             }
 
-            if (amount == 0)
+            if (amount <= 0)
                 return;
 
             ItemStack joker = new ItemStack(Material.BARRIER, amount);
             ItemMeta jokerMeta = joker.getItemMeta();
-            jokerMeta.setDisplayName(ChatColor.GOLD + "Joker");
+            jokerMeta.displayName(Component.text("Joker").color(NamedTextColor.GOLD));
             joker.setItemMeta(jokerMeta);
 
             backpackManager.getBackpack(uuid).getInventory().remove(Material.BARRIER);
@@ -236,7 +261,7 @@ public class Logic {
                 player.getInventory().remove(Material.BARRIER);
 
             player.getInventory().addItem(joker);
-            playersConfig.toFileConfiguration().set(uuid.toString() + ".jokersLeft", amount);
+            playersConfig.toFileConfiguration().set(uuid + ".jokersLeft", amount);
             playersConfig.saveConfiguration();
         }
     }
@@ -247,14 +272,14 @@ public class Logic {
 
         if (amount <= 0)
             amount = 5;
-        if (playersConfig.toFileConfiguration().contains(uuid.toString() + ".jokersLeft")) {
-            amount = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".jokersLeft");
+        if (playersConfig.toFileConfiguration().contains(uuid + ".jokersLeft")) {
+            amount = playersConfig.toFileConfiguration().getInt(uuid + ".jokersLeft");
             if (amount == 0)
                 return;
         }
         ItemStack joker = new ItemStack(Material.BARRIER, amount);
         ItemMeta jokerMeta = joker.getItemMeta();
-        jokerMeta.setDisplayName(ChatColor.GOLD + "Joker");
+        jokerMeta.displayName(Component.text("Joker").color(NamedTextColor.GOLD));
         joker.setItemMeta(jokerMeta);
 
         backpackManager.getBackpack(uuid).getInventory().remove(Material.BARRIER);
@@ -263,7 +288,7 @@ public class Logic {
             player.getInventory().remove(Material.BARRIER);
 
         player.getInventory().addItem(joker);
-        playersConfig.toFileConfiguration().set(uuid.toString() + ".jokersLeft", amount);
+        playersConfig.toFileConfiguration().set(uuid + ".jokersLeft", amount);
         playersConfig.saveConfiguration();
     }
 

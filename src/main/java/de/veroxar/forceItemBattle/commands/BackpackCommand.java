@@ -18,8 +18,7 @@ public class BackpackCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
 
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
+        if (sender instanceof Player player) {
 
             Backpack backpack = backpackManager.getBackpack(player.getUniqueId());
 

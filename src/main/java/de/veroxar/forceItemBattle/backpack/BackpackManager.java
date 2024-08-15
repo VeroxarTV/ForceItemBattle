@@ -5,7 +5,6 @@ import de.veroxar.forceItemBattle.config.Configs;
 import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.data.Data;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.util.*;
@@ -13,7 +12,6 @@ import java.util.*;
 public class BackpackManager {
 
     Data data = ForceItemBattle.getData();
-    JavaPlugin instance = data.getInstance();
     Configs configs = data.getConfigs();
     private final Map<UUID, Backpack> map;
 
@@ -32,10 +30,6 @@ public class BackpackManager {
         Backpack backpack = new Backpack(uuid);
         map.put(uuid, backpack);
         return backpack;
-    }
-
-    public void setBackpack(UUID uuid, Backpack backpack){
-        map.put(uuid, backpack);
     }
 
     private void load() {

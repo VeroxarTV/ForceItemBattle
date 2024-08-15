@@ -8,8 +8,9 @@ import de.veroxar.forceItemBattle.messages.Messages;
 import de.veroxar.forceItemBattle.tasks.CompletedTask;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.util.Logic;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -57,10 +58,10 @@ public class ResetCommand implements CommandExecutor {
                 gameCountdown.setRunning(false);
                 gameCountdown.setFinished(false);
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(Messages.PREFIX + ChatColor.GRAY + "Das Spiel wurde zurückgesetzt!");
+                    player.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde zurückgesetzt!").color(NamedTextColor.GRAY)));
                 }
             } else {
-                sender.sendMessage(Messages.PREFIX + ChatColor.GRAY + "Das Spiel wurde zurückgesetzt!");
+                sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde zurückgesetzt!").color(NamedTextColor.GRAY)));
             }
         } else {
             sendUsage(sender);
@@ -69,7 +70,6 @@ public class ResetCommand implements CommandExecutor {
     }
 
     public void sendUsage(CommandSender sender) {
-        sender.sendMessage(Messages.PREFIX + ChatColor.GRAY + "Bitte benutze: " + ChatColor.GOLD + "/reset" +
-                ChatColor.GRAY + " um das Spiel zurückzusetzen!");
+        sender.sendMessage(Messages.PREFIX.append(Component.text("Bitte nutze /reset um das Spiel zurückzusetzen").color(NamedTextColor.GRAY)));
     }
 }

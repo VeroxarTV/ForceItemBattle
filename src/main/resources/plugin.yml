@@ -6,8 +6,6 @@ authors: [ Veroxar ]
 description: Force Item Battle Plugin
 
 commands:
-  #timer:
-    #permission: forceItemBattle.commands.timer
   backpack:
     aliases: [ bp ]
   start:
@@ -17,4 +15,8 @@ commands:
   skip:
     permission: forceItemBattle.commands.skip
   result:
-    aliases: [next]
+    permission: forceItemBattle.commands.result
+  end:
+    permission: forceItemBattle.commands.end
+  task:
+    permission: forceItemBattle.dev.commands.task

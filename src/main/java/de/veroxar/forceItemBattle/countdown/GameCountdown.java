@@ -4,16 +4,12 @@ import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.messages.Messages;
-import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.util.Logic;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Sound;
+import net.kyori.adventure.title.Title;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -71,10 +67,8 @@ public class GameCountdown {
         long minutes = (totalSeconds % 3600) / 60;
         long seconds = totalSeconds % 60;
 
-        String formattedTime = String.format("%02d:%02d:%02d", hours, minutes, seconds);
 
-
-        return formattedTime;
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
     public void sendActionBar() {
@@ -85,8 +79,7 @@ public class GameCountdown {
             }
 
             if (!isRunning())  {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GOLD.toString() +
-                        ChatColor.ITALIC + "Idle" ));
+                player.sendActionBar(Component.text("Idle").color(NamedTextColor.GOLD).decorate(TextDecoration.ITALIC));
                 continue;
             }
 
@@ -115,11 +108,12 @@ public class GameCountdown {
     public void onEnd() {
         setFinished(true);
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendTitle(ChatColor.GOLD + "Zeit vorbei!", "");
-            player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
-            player.teleport(player.getWorld().getSpawnLocation());
+            player.showTitle(Title.title(Component.text("Zeit vorbei!").color(NamedTextColor.GOLD), (Component.text(""))));
+            Location spawn = player.getWorld().getSpawnLocation();
+            player.teleportAsync(spawn);
+            player.playSound(player, Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
             if (player.hasPermission("forceItemBattle.commands.result")) {
-                player.sendMessage(Messages.PREFIX + ChatColor.GRAY + "Führe /result aus, um das Ergebnis anzuzeigen!");
+                player.sendMessage(Messages.PREFIX.append(Component.text("Führe /result aus, um das Ergebnis anzuzeigen!").color(NamedTextColor.GRAY)));
             }
         }
         logic.removeAllTasks();

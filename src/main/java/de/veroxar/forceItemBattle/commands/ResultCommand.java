@@ -6,23 +6,18 @@ import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.messages.Messages;
 import de.veroxar.forceItemBattle.util.Logic;
 import de.veroxar.forceItemBattle.util.ResultInventoryManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ResultCommand implements CommandExecutor {
 
-    private static final Logger log = LoggerFactory.getLogger(ResultCommand.class);
     Data data = ForceItemBattle.getData();
     GameCountdown gameCountdown = data.getGameCountdown();
     Logic logic = data.getLogic();
@@ -32,12 +27,10 @@ public class ResultCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
 
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage(Messages.NOPLAYER);
             return true;
         }
-
-        Player player = (Player) sender;
 
         if (args.length == 0) {
             if (gameCountdown.isFinished()) {
@@ -47,14 +40,13 @@ public class ResultCommand implements CommandExecutor {
 
                 // Sortiere die Spieler nach Punkten in absteigender Reihenfolge
                 List<Map.Entry<UUID, Integer>> sortedPlacements = playerPlacements.stream()
-                        .sorted(Map.Entry.<UUID, Integer>comparingByValue(Comparator.reverseOrder()))
-                        .collect(Collectors.toList());
+                        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                        .toList();
 
                 // Erhöhe den Index und hole die nächste UUID
                 currentIndex++;
                 if (currentIndex >= sortedPlacements.size()) {
-                    player.sendMessage(Messages.PREFIX + "Keine weiteren Spielerplätze verfügbar.");
-                    return true;
+                    player.sendMessage(Messages.PREFIX.append(Component.text("Keine weiteren Spielerplätze verfügbar.").color(NamedTextColor.GRAY)));
                 }
 
                 // Hole die UUID der aktuellen Position
@@ -73,24 +65,24 @@ public class ResultCommand implements CommandExecutor {
 
 
             } else if (gameCountdown.isRunning()){
-                sender.sendMessage(Messages.PREFIX + ChatColor.RED + "Das Spiel ist noch nicht beendet!");
+                sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel ist noch nicht beendet!").color(NamedTextColor.RED)));
             } else {
-                sender.sendMessage(Messages.PREFIX + ChatColor.RED + "Das Spiel hat noch nicht begonnen!");
+                sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel hat noch nicht begonnen!").color(NamedTextColor.RED)));
             }
         } else if (args.length == 2) {
             Player target = Bukkit.getPlayer(args[0]);
             if (args[1].equalsIgnoreCase("no")) {
+                assert target != null;
                 player.openInventory(resultInventoryManager.createResultInvWithoutAnimation(target));
             }
         } else {
             sendUsage(sender);
-            return true;
         }
 
-        return false;
+        return true;
     }
     public void sendUsage(CommandSender sender) {
-        sender.sendMessage(Messages.PREFIX + ChatColor.GRAY + "Bitte benutze: " + ChatColor.GOLD + "/result" +
-                ChatColor.GRAY + " um das Ergebnis anzuzeigen!");
+        sender.sendMessage(Messages.PREFIX.append(Component.text("Bitte nutze /result um das Endergebnis anzuzeigen!").color(NamedTextColor.GRAY)));
+
     }
 }

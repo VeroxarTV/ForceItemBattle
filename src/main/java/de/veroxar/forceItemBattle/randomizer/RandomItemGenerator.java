@@ -1,12 +1,12 @@
 package de.veroxar.forceItemBattle.randomizer;
 
 import org.bukkit.Material;
-import org.bukkit.inventory.CreativeCategory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@SuppressWarnings("UnstableApiUsage")
 public class RandomItemGenerator {
 
     private final List<Material> survivalItems;
@@ -112,10 +112,19 @@ public class RandomItemGenerator {
         if (material.equals(Material.BARRIER))
             return false;
 
-        if (material.equals(Material.JIGSAW))
+        if (material.equals(Material.COMMAND_BLOCK_MINECART))
             return false;
 
-        return true;
+        if (material.equals(Material.SUSPICIOUS_GRAVEL))
+            return false;
+
+        if (material.equals(Material.SUSPICIOUS_SAND))
+            return false;
+
+        if (material.equals(Material.END_PORTAL_FRAME))
+            return false;
+
+        return !material.equals(Material.JIGSAW);
     }
 
     public Material getRandomItem() {

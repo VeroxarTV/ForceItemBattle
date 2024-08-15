@@ -7,13 +7,11 @@ import de.veroxar.forceItemBattle.randomizer.RandomItemGenerator;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.util.Logic;
 import de.veroxar.forceItemBattle.util.ResultInventoryManager;
-import de.veroxar.forceItemBattle.util.Timer;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Data {
 
     JavaPlugin instance;
-    Timer timer;
     BackpackManager backpackManager;
     Configs configs;
     GameCountdown gameCountdown;
@@ -25,9 +23,6 @@ public class Data {
     //SETTER
     public void setInstance(JavaPlugin instance) {
         this.instance = instance;
-    }
-    public void setTimer(Timer timer) {
-        this.timer = timer;
     }
     public void setBackpackManager(BackpackManager backpackManager) {
         this.backpackManager = backpackManager;
@@ -54,9 +49,6 @@ public class Data {
     //GETTER
     public JavaPlugin getInstance() {
         return instance;
-    }
-    public Timer getTimer() {
-        return timer;
     }
     public BackpackManager getBackpackManager() {
         return backpackManager;

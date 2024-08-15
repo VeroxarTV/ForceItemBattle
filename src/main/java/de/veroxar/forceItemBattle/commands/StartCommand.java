@@ -5,15 +5,15 @@ import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.messages.Messages;
 import de.veroxar.forceItemBattle.util.Logic;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
 import org.bukkit.GameRule;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 public class StartCommand implements CommandExecutor {
@@ -31,7 +31,7 @@ public class StartCommand implements CommandExecutor {
                 gameCountdown.setRunning(true);
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(Messages.PREFIX + ChatColor.GREEN + "Das Spiel wurde gestartet!");
+                    player.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde gestartet!").color(NamedTextColor.GREEN)));
                     player.setHealth(20);
                     player.setFoodLevel(20);
                     player.getWorld().setTime(0);
@@ -43,7 +43,7 @@ public class StartCommand implements CommandExecutor {
                 }
 
             } else {
-                sender.sendMessage(Messages.PREFIX + ChatColor.RED + "Das Spiel wurde bereits gestartet!");
+                sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde bereits gestartet!").color(NamedTextColor.RED)));
                 return true;
             }
 
@@ -56,7 +56,6 @@ public class StartCommand implements CommandExecutor {
     }
 
     public void sendUsage(CommandSender sender) {
-        sender.sendMessage(Messages.PREFIX + ChatColor.GRAY + "Bitte benutze: " + ChatColor.GOLD + "/start" +
-                ChatColor.GRAY + " um das Spiel zu beginnen!");
+        sender.sendMessage(Messages.PREFIX.append(Component.text("Bitte nutze /start um das Spiel zu beginnen!").color(NamedTextColor.GRAY)));
     }
 }

@@ -17,6 +17,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
 
+/*
+@Author: Veroxar
+ */
+
+
 public final class ForceItemBattle extends JavaPlugin {
 
     private static final Data data = new Data();
@@ -44,6 +49,8 @@ public final class ForceItemBattle extends JavaPlugin {
         Objects.requireNonNull(getCommand("reset")).setExecutor(new ResetCommand());
         Objects.requireNonNull(getCommand("skip")).setExecutor(new SkipCommand());
         Objects.requireNonNull(getCommand("result")).setExecutor(new ResultCommand());
+        Objects.requireNonNull(getCommand("task")).setExecutor(new SetTaskCommand());
+        Objects.requireNonNull(getCommand("end")).setExecutor(new EndCommand());
     }
 
     public void initializeData(){

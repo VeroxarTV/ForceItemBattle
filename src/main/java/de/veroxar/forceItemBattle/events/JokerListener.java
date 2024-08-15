@@ -50,9 +50,9 @@ public class JokerListener implements Listener {
                     failed.clear();
                 }
                 logic.completedTask(player, true);
-                int jokersLeft = playersConfig.toFileConfiguration().getInt(uuid.toString() + ".jokersLeft");
+                int jokersLeft = playersConfig.toFileConfiguration().getInt(uuid + ".jokersLeft");
                 int newJokersLeft = jokersLeft - 1;
-                playersConfig.toFileConfiguration().set(uuid.toString() + ".jokersLeft", newJokersLeft);
+                playersConfig.toFileConfiguration().set(uuid + ".jokersLeft", newJokersLeft);
                 playersConfig.saveConfiguration();
                 event.setCancelled(true);
             }

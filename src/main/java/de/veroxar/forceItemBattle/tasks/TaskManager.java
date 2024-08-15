@@ -4,13 +4,11 @@ import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.data.Data;
 import org.bukkit.Material;
-import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 
 public class TaskManager {
 
     Data data = ForceItemBattle.getData();
-    JavaPlugin instance = data.getInstance();
     Configuration taskConfig = data.getConfigs().getTaskConfig();
     Configuration completedTaskConfig = data.getConfigs().getCompletedTaskConfig();
     private final Map<UUID, Task> map;
@@ -34,7 +32,11 @@ public class TaskManager {
         return task;
     }
 
-    public void setTask(UUID uuid, Task task){
+    public void setTask(UUID uuid, Material material) {
+        if (map.containsKey(uuid))
+            removeTask(uuid);
+
+        Task task = new Task(uuid, material);
         map.put(uuid, task);
     }
 
@@ -107,7 +109,7 @@ public class TaskManager {
         List<String> uuids = completedTaskConfig.toFileConfiguration().getStringList("completed_tasks");
         uuids.forEach(s -> {
             UUID uuid = UUID.fromString(s);
-            List<String> completedTasks = completedTaskConfig.toFileConfiguration().getStringList(uuid.toString() + ".completed_tasks");
+            List<String> completedTasks = completedTaskConfig.toFileConfiguration().getStringList(uuid + ".completed_tasks");
             List<CompletedTask> completedTaskList = new ArrayList<>(); // Erstelle eine neue Liste für jede UUID
 
             completedTasks.forEach(s1 -> completedTaskList.add(CompletedTask.fromString(s1)));
@@ -130,7 +132,7 @@ public class TaskManager {
             for (CompletedTask completedTask : map2.get(uuid)) {
                 completedTasksStringList.add(completedTask.toString());
             }
-            completedTaskConfig.toFileConfiguration().set(uuid.toString() + ".completed_tasks", completedTasksStringList);
+            completedTaskConfig.toFileConfiguration().set(uuid + ".completed_tasks", completedTasksStringList);
         }
 
         completedTaskConfig.toFileConfiguration().set("completed_tasks", uuids);

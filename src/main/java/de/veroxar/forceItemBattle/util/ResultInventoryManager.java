@@ -5,13 +5,12 @@ import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.tasks.CompletedTask;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
-import net.kyori.adventure.Adventure;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -33,24 +32,26 @@ public class ResultInventoryManager {
     private int maxPages = 1;
     private boolean moreThanOnePage = false;
     private boolean alreadyUsed = false;
+    public boolean inAnimation = false;
 
     /**
      * Erstellt ein Inventar für abgeschlossene Aufgaben mit animierter Darstellung.
      * @param player Der Spieler, für den das Inventar geöffnet wird.
+     * @param pos Der belegte Platz in dieser Runde.
      * @return Das erstellte Inventar.
      */
     public Inventory createResultInv(Player player, int pos) {
         UUID uuid = player.getUniqueId();
         List<CompletedTask> completedTaskList = taskManager.getCompletedTaskList(uuid);
-        int position = pos;
 
         maxPages = (int) Math.ceil(completedTaskList.size() / 35.0); // Berechnet die Anzahl der benötigten Seiten
         currentPage = 1;
         moreThanOnePage = currentPage < maxPages;
         alreadyUsed = false;
+        inAnimation = true;
 
 
-        return createInventoryWithAnimation(completedTaskList, player, position);
+        return createInventoryWithAnimation(completedTaskList, player, pos);
     }
 
     /**
@@ -91,7 +92,7 @@ public class ResultInventoryManager {
     }
 
     private Inventory createInventoryWithAnimation(List<CompletedTask> completedTaskList, Player player, int position) {
-        Inventory inventory = Bukkit.createInventory(null, 9 * 6, "Geschaffte Aufgaben");
+        Inventory inventory = Bukkit.createInventory(null, 9 * 6, Component.text("Geschaffte Aufgaben"));
 
         fillDefaultGlassPanes(inventory);
 
@@ -133,7 +134,7 @@ public class ResultInventoryManager {
     }
 
     private Inventory createInventoryWithoutAnimation(List<CompletedTask> completedTaskList, Player player) {
-        Inventory inventory = Bukkit.createInventory(player, 9 * 6, "Geschaffte Aufgaben");
+        Inventory inventory = Bukkit.createInventory(player, 9 * 6, Component.text("Geschaffte Aufgaben"));
 
         fillDefaultGlassPanes(inventory);
 
@@ -143,8 +144,6 @@ public class ResultInventoryManager {
                 if (slotIndex % 9 != 0 && (slotIndex + 1) % 9 != 0) {
                     final int currentSlot = slotIndex;
                     addItemToInventory(inventory, completedTask, currentSlot);
-
-                        int nextSlot = getNextAvailableSlot(inventory, currentSlot);
 
                     slotIndex++;
                     break;
@@ -162,6 +161,7 @@ public class ResultInventoryManager {
         inventory.clear();
         Player player = (Player) inventory.getHolder();
         fillDefaultGlassPanes(inventory);
+        assert player != null;
         List<CompletedTask> completedTasks = taskManager.getCompletedTaskList(player.getUniqueId());
 
         int startIndex = (currentPage - 1) * 35;
@@ -233,8 +233,8 @@ public class ResultInventoryManager {
     }
 
     private void fillDefaultGlassPanes(Inventory inventory) {
-        ItemStack whiteGlassPane = createGlassPane(Material.WHITE_STAINED_GLASS_PANE, ChatColor.BLACK + " ");
-        ItemStack grayGlassPane = createGlassPane(Material.GRAY_STAINED_GLASS_PANE, ChatColor.BLACK + " ");
+        ItemStack whiteGlassPane = createGlassPane(Material.WHITE_STAINED_GLASS_PANE);
+        ItemStack grayGlassPane = createGlassPane(Material.GRAY_STAINED_GLASS_PANE);
 
         for (int i = 0; i < 9; i++) {
             inventory.setItem(i, whiteGlassPane);
@@ -248,57 +248,57 @@ public class ResultInventoryManager {
     private void updateNavigationPanes(Inventory inventory) {
         // "Vorherige Seite"-Scheibe von Anfang an hinzufügen, falls nicht auf der ersten Seite
         if (currentPage > 1) {
-            ItemStack redGlassPane = createNavGlassPane(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "Vorherige Seite", currentPage, maxPages);
+            ItemStack redGlassPane = createNavGlassPane(Material.RED_STAINED_GLASS_PANE,"Vorherige Seite", NamedTextColor.RED, currentPage, maxPages);
             inventory.setItem(27, redGlassPane);
         }
 
         // "Nächste Seite"-Scheibe nur hinzufügen, wenn mehr Seiten verfügbar sind
         if (currentPage < maxPages) {
-            ItemStack greenGlassPane = createNavGlassPane(Material.LIME_STAINED_GLASS_PANE, ChatColor.GREEN + "Nächste Seite", currentPage, maxPages);
+            ItemStack greenGlassPane = createNavGlassPane(Material.LIME_STAINED_GLASS_PANE,"Nächste Seite", NamedTextColor.GREEN, currentPage, maxPages);
             inventory.setItem(35, greenGlassPane);
         }
     }
 
     private void updateRedNavPane(Inventory inventory) {
         if (currentPage > 1) {
-            ItemStack redGlassPane = createNavGlassPane(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "Vorherige Seite", currentPage, maxPages);
+            ItemStack redGlassPane = createNavGlassPane(Material.RED_STAINED_GLASS_PANE,"Vorherige Seite", NamedTextColor.RED,currentPage, maxPages);
             inventory.setItem(27, redGlassPane);
         }
     }
 
-    private ItemStack createNavGlassPane(Material material, String displayName, int currentPage, int maxPages) {
+    private ItemStack createNavGlassPane(Material material, String displayName, NamedTextColor color, int currentPage, int maxPages) {
         ItemStack glassPane = new ItemStack(material);
         ItemMeta meta = glassPane.getItemMeta();
-        meta.setDisplayName(displayName);
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GRAY.toString() + currentPage + " / " + maxPages);
-        meta.setLore(lore);
+        meta.displayName(Component.text(displayName).color(color));
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.text( currentPage + " / " + maxPages).color(NamedTextColor.GRAY));
+        meta.lore(lore);
         glassPane.setItemMeta(meta);
 
         return glassPane;
     }
 
-    private ItemStack createGlassPane(Material material, String displayName) {
+    private ItemStack createGlassPane(Material material) {
         ItemStack glassPane = new ItemStack(material);
         ItemMeta meta = glassPane.getItemMeta();
-        meta.setDisplayName(displayName);
+        meta.displayName(Component.text(" "));
         glassPane.setItemMeta(meta);
         return glassPane;
     }
 
     private void addItemToInventory(Inventory inventory, CompletedTask completedTask, int slot) {
-        ItemStack itemStack = new ItemStack(completedTask.getMaterial());
+        ItemStack itemStack = new ItemStack(completedTask.material());
         ItemMeta itemMeta = itemStack.getItemMeta();
 
-        List<String> lore = new ArrayList<>();
+        List<Component> lore = new ArrayList<>();
 
-        lore.add(" ");
-        lore.add(ChatColor.GOLD + gameCountdown.formatTime(completedTask.getSeconds()));
+        lore.add(Component.text(" "));
+        lore.add(Component.text(gameCountdown.formatTime(completedTask.seconds())).color(NamedTextColor.GOLD));
 
-        if (completedTask.isUsedJoker())
-            lore.add(ChatColor.RED.toString() + ChatColor.BOLD + "[JOKER]");
+        if (completedTask.usedJoker())
+            lore.add(Component.text("[JOKER]").color(NamedTextColor.RED).decorate(TextDecoration.BOLD));
 
-        itemMeta.setLore(lore);
+        itemMeta.lore(lore);
         itemStack.setItemMeta(itemMeta);
 
         inventory.setItem(slot, itemStack);
@@ -315,13 +315,14 @@ public class ResultInventoryManager {
 
     private void playItemPickupSoundForAllPlayers() {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            if (onlinePlayer.getOpenInventory().getTitle().equalsIgnoreCase("Geschaffte Aufgaben"))
+            if (onlinePlayer.getOpenInventory().title().equals(Component.text("Geschaffte Aufgaben")))
                 onlinePlayer.playSound(onlinePlayer.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1, 1);
         }
     }
 
     private void presentInventoryHolder(Inventory inventory, Player player, int position){
         inventory.close();
+        inAnimation = false;
         if (alreadyUsed)
             return;
 
@@ -329,30 +330,33 @@ public class ResultInventoryManager {
         Component posTXT = Component.text(position);
         Component playerTXT = Component.text(". " + player.getName());
         Component separatorTXT = Component.text(" - ");
-        Component pointsTXT = Component.text(logic.getPoints(player));
+        Component pointsTXT = Component.text(logic.getPoints(player)).color(NamedTextColor.WHITE);
         Component overviewClickable = Component.text(" [Übersicht]").color(NamedTextColor.GREEN).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/result " + player.getName() + " no"));
 
         for (Player players : Bukkit.getOnlinePlayers()) {
             switch (position) {
                 case 3:
-                    players.sendTitle(ChatColor.DARK_GRAY.toString() + position + ChatColor.RESET + "." + player.getName(), ChatColor.GOLD.toString() + logic.getPoints(player) + " Aufgaben geschafft");
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.DARK_GRAY).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.color(NamedTextColor.DARK_GRAY).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 case 2:
-                    players.sendTitle(ChatColor.GRAY.toString() + position + ChatColor.RESET + "." + player.getName(), ChatColor.GOLD.toString() + logic.getPoints(player) + " Aufgaben geschafft");
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GRAY).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.color(NamedTextColor.GRAY).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 case 1:
-                    players.sendTitle(ChatColor.GOLD.toString() + position + ChatColor.RESET + "." + player.getName(), ChatColor.GOLD.toString() + logic.getPoints(player) + " Aufgaben geschafft");
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GOLD).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.color(NamedTextColor.GOLD).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 default:
-                    players.sendTitle( position + "." + player.getName(), ChatColor.GOLD.toString() + logic.getPoints(player) + " Aufgaben geschafft");
+                    players.showTitle(Title.title(Component.text(position + "." + player.getName()), Component.text(logic.getPoints(player) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.append(playerTXT).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
             }
             players.playSound(players.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
         }
         alreadyUsed = true;
+    }
+    public boolean isInAnimation() {
+        return inAnimation;
     }
 }
