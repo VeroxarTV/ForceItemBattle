@@ -25,9 +25,9 @@ public class SkipCommand implements CommandExecutor {
             if (args.length == 0 || args.length == 1 & args[0].equalsIgnoreCase(player.getName())) {
                 if (logic.hasTask(player)) {
                     logic.skipTask(player);
-                    player.sendMessage(Messages.PREFIX.append(Component.text("Deine Aufgabe wurde übersprungen!").color(NamedTextColor.GRAY)));
+                    player.sendMessage(Messages.PREFIX.append(Component.text("Your task has been skipped!").color(NamedTextColor.GRAY)));
                 } else {
-                    player.sendMessage(Messages.PREFIX.append(Component.text("Du hast keine Aufgabe!").color(NamedTextColor.RED)));
+                    player.sendMessage(Messages.PREFIX.append(Component.text("You have no task!").color(NamedTextColor.RED)));
                 }
             } else if (args.length == 1) {
                 for (Player target : Bukkit.getOnlinePlayers()) {
@@ -36,13 +36,13 @@ public class SkipCommand implements CommandExecutor {
                         Component playerName = Component.text(player.getName()).color(NamedTextColor.GOLD);
                         if (logic.hasTask(target)) {
                             logic.skipTask(target);
-                            player.sendMessage(Messages.PREFIX.append(Component.text("Die Aufgabe von dem Spieler: ").color(NamedTextColor.GRAY).append(targetName).append(Component.text("wurde übersprungen!").color(NamedTextColor.GRAY))));
-                            target.sendMessage(Messages.PREFIX.append(Component.text("Deine Aufgabe wurde von: ").color(NamedTextColor.GRAY).append(playerName).append(Component.text("übersprungen!").color(NamedTextColor.GRAY))));
+                            player.sendMessage(Messages.PREFIX.append(Component.text("The player's task: ").color(NamedTextColor.GRAY).append(targetName).append(Component.text("was skipped!").color(NamedTextColor.GRAY))));
+                            target.sendMessage(Messages.PREFIX.append(Component.text("Your task was created by: ").color(NamedTextColor.GRAY).append(playerName).append(Component.text("skipped!").color(NamedTextColor.GRAY))));
 
                         } else
-                            player.sendMessage(Messages.PREFIX.append(Component.text("Der Spieler: ").color(NamedTextColor.RED).append(targetName).append(Component.text("hat keine Aufgabe!").color(NamedTextColor.RED))));
+                            player.sendMessage(Messages.PREFIX.append(Component.text("The player: ").color(NamedTextColor.RED).append(targetName).append(Component.text("has no task!").color(NamedTextColor.RED))));
                     } else
-                        player.sendMessage(Messages.PREFIX.append(Component.text("Der Spieler: ").color(NamedTextColor.RED).append(Component.text(args[0]).color(NamedTextColor.GOLD).append(Component.text(" ist nicht Online!").color(NamedTextColor.RED)))));
+                        player.sendMessage(Messages.PREFIX.append(Component.text("The player: ").color(NamedTextColor.RED).append(Component.text(args[0]).color(NamedTextColor.GOLD).append(Component.text(" is not online!").color(NamedTextColor.RED)))));
                 }
             } else {
                 sendUsage(sender);

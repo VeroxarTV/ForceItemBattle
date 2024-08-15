@@ -28,7 +28,7 @@ public class RandomItemGenerator {
         if (material.equals(Material.BEDROCK))
             return false;
 
-        if (material.equals(Material.AIR))
+        if (material.isEmpty())
             return false;
 
         if (material.equals(Material.DEBUG_STICK))
@@ -73,7 +73,7 @@ public class RandomItemGenerator {
         if (material.name().contains("EXPOSED"))
             return false;
 
-        if (material.name().contains("DISC"))
+        if (material.isRecord())
             return false;
 
         if (material.name().contains("CORAL"))

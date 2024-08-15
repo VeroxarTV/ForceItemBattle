@@ -59,7 +59,7 @@ public class Logic {
         Material material = task.getMaterial();
 
         createTeam(player);
-        player.sendMessage(Messages.PREFIX.append(Component.text("Nächste Aufgabe: ").color(NamedTextColor.GRAY)
+        player.sendMessage(Messages.PREFIX.append(Component.text("Next task: ").color(NamedTextColor.GRAY)
                 .append(getCurrentItemName(player))));
         Objects.requireNonNull(player.getScoreboard().getTeam(player.getName())).suffix(Component.text(" [").color(NamedTextColor.GRAY)
                 .append(getCurrentItemName(player).append(Component.text("]").color(NamedTextColor.GRAY))));
@@ -73,8 +73,8 @@ public class Logic {
         taskManager.setTask(uuid, material);
 
         createTeam(player);
-        player.sendMessage(Messages.PREFIX.append(Component.text("Deine Aufgabe wurde neu gesetzt!").color(NamedTextColor.RED)));
-        player.sendMessage(Messages.PREFIX.append(Component.text("Nächste Aufgabe: ").color(NamedTextColor.GRAY)
+        player.sendMessage(Messages.PREFIX.append(Component.text("Your task has been reset!").color(NamedTextColor.RED)));
+        player.sendMessage(Messages.PREFIX.append(Component.text("Next task: ").color(NamedTextColor.GRAY)
                 .append(getCurrentItemName(player))));
         Objects.requireNonNull(player.getScoreboard().getTeam(player.getName())).suffix(Component.text(" [").color(NamedTextColor.GRAY)
                 .append(getCurrentItemName(player).append(Component.text("]").color(NamedTextColor.GRAY))));
@@ -105,8 +105,8 @@ public class Logic {
         Material material = taskManager.getTask(uuid).getMaterial();
         int time = gameCountdown.getTime();
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
-        player.sendMessage(Messages.PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
-                .append(getCurrentItemName(player).append(Component.text(" geschafft!").color(NamedTextColor.GREEN)))));
+        player.sendMessage(Messages.PREFIX.append(Component.text("Task ").color(NamedTextColor.GRAY)
+                .append(getCurrentItemName(player).append(Component.text(" completed!").color(NamedTextColor.GREEN)))));
         addPoint(player);
         taskManager.createCompletedTask(uuid, material, time, usedJoker);
         taskManager.saveCompletedTasks();
@@ -115,8 +115,8 @@ public class Logic {
     }
 
     public void skipTask(@NotNull Player player) {
-        player.sendMessage(Messages.PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
-                .append(getCurrentItemName(player).append(Component.text(" übersprungen").color(NamedTextColor.GREEN)))));
+        player.sendMessage(Messages.PREFIX.append(Component.text("Task ").color(NamedTextColor.GRAY)
+                .append(getCurrentItemName(player).append(Component.text(" skipped!").color(NamedTextColor.GREEN)))));
         removeTask(player);
         newTask(player);
     }

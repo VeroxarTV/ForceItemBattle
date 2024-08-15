@@ -50,15 +50,15 @@ public class GameListener implements Listener {
         if (event.getWhoClicked() instanceof Player player) {
             UUID uuid = player.getUniqueId();
 
-            if (event.getView().title().equals(Component.text("Geschaffte Aufgaben"))) {
+            if (event.getView().title().equals(Component.text("Completed tasks"))) {
                 if (!resultInventoryManager.isInAnimation()) {
                     if (event.getCurrentItem() != null) {
                         if (event.getCurrentItem().hasItemMeta()) {
                             if (event.getCurrentItem().getItemMeta().hasDisplayName()) {
-                                if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Nächste Seite").color(NamedTextColor.GREEN))) {
+                                if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Next page").color(NamedTextColor.GREEN))) {
                                     resultInventoryManager.switchPages(event.getInventory(), true);
                                     event.setCancelled(true);
-                                } else if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Vorherige Seite").color(NamedTextColor.RED))) {
+                                } else if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Previous page").color(NamedTextColor.RED))) {
                                     resultInventoryManager.switchPages(event.getInventory(), false);
                                     event.setCancelled(true);
                                 }
