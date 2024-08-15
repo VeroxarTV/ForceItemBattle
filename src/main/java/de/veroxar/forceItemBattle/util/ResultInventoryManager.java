@@ -92,7 +92,7 @@ public class ResultInventoryManager {
     }
 
     private Inventory createInventoryWithAnimation(List<CompletedTask> completedTaskList, Player player, int position) {
-        Inventory inventory = Bukkit.createInventory(null, 9 * 6, Component.text("Completed tasks"));
+        Inventory inventory = Bukkit.createInventory(null, 9 * 6, Component.text("Geschaffte Aufgaben"));
 
         fillDefaultGlassPanes(inventory);
 
@@ -134,7 +134,7 @@ public class ResultInventoryManager {
     }
 
     private Inventory createInventoryWithoutAnimation(List<CompletedTask> completedTaskList, Player player) {
-        Inventory inventory = Bukkit.createInventory(player, 9 * 6, Component.text("Completed tasks"));
+        Inventory inventory = Bukkit.createInventory(player, 9 * 6, Component.text("Geschaffte Aufgaben"));
 
         fillDefaultGlassPanes(inventory);
 
@@ -248,20 +248,20 @@ public class ResultInventoryManager {
     private void updateNavigationPanes(Inventory inventory) {
         // "Vorherige Seite"-Scheibe von Anfang an hinzufügen, falls nicht auf der ersten Seite
         if (currentPage > 1) {
-            ItemStack redGlassPane = createNavGlassPane(Material.RED_STAINED_GLASS_PANE,"Previous page", NamedTextColor.RED, currentPage, maxPages);
+            ItemStack redGlassPane = createNavGlassPane(Material.RED_STAINED_GLASS_PANE,"Vorherige Seite", NamedTextColor.RED, currentPage, maxPages);
             inventory.setItem(27, redGlassPane);
         }
 
         // "Nächste Seite"-Scheibe nur hinzufügen, wenn mehr Seiten verfügbar sind
         if (currentPage < maxPages) {
-            ItemStack greenGlassPane = createNavGlassPane(Material.LIME_STAINED_GLASS_PANE,"Next page", NamedTextColor.GREEN, currentPage, maxPages);
+            ItemStack greenGlassPane = createNavGlassPane(Material.LIME_STAINED_GLASS_PANE,"Nächste Seite", NamedTextColor.GREEN, currentPage, maxPages);
             inventory.setItem(35, greenGlassPane);
         }
     }
 
     private void updateRedNavPane(Inventory inventory) {
         if (currentPage > 1) {
-            ItemStack redGlassPane = createNavGlassPane(Material.RED_STAINED_GLASS_PANE,"Previous page", NamedTextColor.RED,currentPage, maxPages);
+            ItemStack redGlassPane = createNavGlassPane(Material.RED_STAINED_GLASS_PANE,"Vorherige Seite", NamedTextColor.RED,currentPage, maxPages);
             inventory.setItem(27, redGlassPane);
         }
     }
@@ -315,7 +315,7 @@ public class ResultInventoryManager {
 
     private void playItemPickupSoundForAllPlayers() {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            if (onlinePlayer.getOpenInventory().title().equals(Component.text("Completed tasks")))
+            if (onlinePlayer.getOpenInventory().title().equals(Component.text("Geschaffte Aufgaben")))
                 onlinePlayer.playSound(onlinePlayer.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1, 1);
         }
     }
@@ -331,24 +331,24 @@ public class ResultInventoryManager {
         Component playerTXT = Component.text(". " + player.getName());
         Component separatorTXT = Component.text(" - ");
         Component pointsTXT = Component.text(logic.getPoints(player)).color(NamedTextColor.WHITE);
-        Component overviewClickable = Component.text(" [Overview]").color(NamedTextColor.GREEN).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/result " + player.getName() + " no"));
+        Component overviewClickable = Component.text(" [Übersicht]").color(NamedTextColor.GREEN).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/result " + player.getName() + " no"));
 
         for (Player players : Bukkit.getOnlinePlayers()) {
             switch (position) {
                 case 3:
-                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.DARK_GRAY).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Tasks completed").color(NamedTextColor.GOLD)));
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.DARK_GRAY).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.color(NamedTextColor.DARK_GRAY).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 case 2:
-                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GRAY).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Tasks completed").color(NamedTextColor.GOLD)));
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GRAY).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.color(NamedTextColor.GRAY).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 case 1:
-                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GOLD).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Tasks completed").color(NamedTextColor.GOLD)));
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GOLD).append(Component.text("." + player.getName()).color(NamedTextColor.WHITE)), Component.text(logic.getPoints(player) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.color(NamedTextColor.GOLD).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 default:
-                    players.showTitle(Title.title(Component.text(position + "." + player.getName()), Component.text(logic.getPoints(player) + " Tasks completed").color(NamedTextColor.GOLD)));
+                    players.showTitle(Title.title(Component.text(position + "." + player.getName()), Component.text(logic.getPoints(player) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.append(playerTXT).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
             }

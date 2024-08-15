@@ -108,12 +108,12 @@ public class GameCountdown {
     public void onEnd() {
         setFinished(true);
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.showTitle(Title.title(Component.text("Time's up!").color(NamedTextColor.GOLD), (Component.text(""))));
+            player.showTitle(Title.title(Component.text("Zeit vorbei!").color(NamedTextColor.GOLD), (Component.text(""))));
             Location spawn = player.getWorld().getSpawnLocation();
             player.teleportAsync(spawn);
             player.playSound(player, Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
             if (player.hasPermission("forceItemBattle.commands.result")) {
-                player.sendMessage(Messages.PREFIX.append(Component.text("Execute /result to display the result!").color(NamedTextColor.GRAY)));
+                player.sendMessage(Messages.PREFIX.append(Component.text("Führe /result aus, um das Ergebnis anzuzeigen!").color(NamedTextColor.GRAY)));
             }
         }
         logic.removeAllTasks();
