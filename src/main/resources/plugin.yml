@@ -4,6 +4,7 @@ main: de.veroxar.forceItemBattle.ForceItemBattle
 api-version: '1.21'
 authors: [ Veroxar ]
 description: Force Item Battle Plugin
+startup:
 
 commands:
   backpack:

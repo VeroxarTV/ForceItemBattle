@@ -46,7 +46,7 @@ public class ResultCommand implements CommandExecutor {
                 // Erhöhe den Index und hole die nächste UUID
                 currentIndex++;
                 if (currentIndex >= sortedPlacements.size()) {
-                    player.sendMessage(Messages.PREFIX.append(Component.text("No further player places available.").color(NamedTextColor.GRAY)));
+                    player.sendMessage(Messages.PREFIX.append(Component.text("Keine weiteren Spielerplätze verfügbar.").color(NamedTextColor.GRAY)));
                 }
 
                 // Hole die UUID der aktuellen Position
@@ -60,14 +60,14 @@ public class ResultCommand implements CommandExecutor {
                         onlinePlayer.openInventory(resultInventoryManager.createResultInv(currentPlayer,pos));
                     }
                 } else {
-                    player.sendMessage(Messages.PREFIX.append(Component.text("The player with the UUID " + currentPlayerUUID + " is currently not online.")));
+                    player.sendMessage(Messages.PREFIX + "Der Spieler mit der UUID " + currentPlayerUUID + " ist derzeit nicht online.");
                 }
 
 
             } else if (gameCountdown.isRunning()){
-                sender.sendMessage(Messages.PREFIX.append(Component.text("The game is not over yet!").color(NamedTextColor.RED)));
+                sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel ist noch nicht beendet!").color(NamedTextColor.RED)));
             } else {
-                sender.sendMessage(Messages.PREFIX.append(Component.text("The game hasn't started yet!").color(NamedTextColor.RED)));
+                sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel hat noch nicht begonnen!").color(NamedTextColor.RED)));
             }
         } else if (args.length == 2) {
             Player target = Bukkit.getPlayer(args[0]);

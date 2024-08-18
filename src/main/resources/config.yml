@@ -1,7 +1,7 @@
-#Set the time in seconds for how long the game should be played
+#Stelle die Zeit an wie lange gespielt werden soll in Sekunden
 #10800 = 3:00h
 #7200 = 2:00h
 #3600 = 1:00h
 time: 10800
-#Set how many jokers each player should get
+#Stelle die Anzahl der Joker ein
 joker: 5

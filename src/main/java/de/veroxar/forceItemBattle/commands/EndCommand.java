@@ -27,16 +27,16 @@ public class EndCommand implements CommandExecutor {
 
         if (gameCountdown.isRunning() && gameCountdown.getTime() > 10) {
             gameCountdown.setTime(3);
-            sender.sendMessage(Messages.PREFIX.append(Component.text("The game will end in 3 seconds").color(NamedTextColor.GRAY)));
+            sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wird in 3 Sekunden beendet").color(NamedTextColor.GRAY)));
         } else {
-            sender.sendMessage(Messages.PREFIX.append(Component.text("The game is not running or is about to end!").color(NamedTextColor.RED)));
+            sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel läuft nicht oder ist gleich beendet!").color(NamedTextColor.RED)));
         }
 
         return true;
     }
 
     public void sendUsage(CommandSender sender) {
-        sender.sendMessage(Messages.PREFIX.append(Component.text("Please use /end to end the game early!").color(NamedTextColor.GRAY)));
+        sender.sendMessage(Messages.PREFIX.append(Component.text("Bitte nutze /end um das Spiel vorzeitig zu beenden!").color(NamedTextColor.GRAY)));
     }
 
 }

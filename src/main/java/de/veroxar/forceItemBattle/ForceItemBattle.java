@@ -3,14 +3,17 @@ package de.veroxar.forceItemBattle;
 import de.veroxar.forceItemBattle.backpack.BackpackManager;
 import de.veroxar.forceItemBattle.commands.*;
 import de.veroxar.forceItemBattle.config.Configs;
+import de.veroxar.forceItemBattle.data.Data;
+import de.veroxar.forceItemBattle.events.ConnectionListener;
 import de.veroxar.forceItemBattle.events.GameListener;
 import de.veroxar.forceItemBattle.events.JokerListener;
 import de.veroxar.forceItemBattle.randomizer.RandomItemGenerator;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
-import de.veroxar.forceItemBattle.data.Data;
-import de.veroxar.forceItemBattle.events.ConnectionListener;
+import de.veroxar.forceItemBattle.team.DefaultTeams;
+import de.veroxar.forceItemBattle.team.TeamManager;
 import de.veroxar.forceItemBattle.util.Logic;
 import de.veroxar.forceItemBattle.util.ResultInventoryManager;
+import de.veroxar.forceItemBattle.util.TablistManager;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,6 +34,7 @@ public final class ForceItemBattle extends JavaPlugin {
     @Override
     public void onEnable() {
         initializeData();
+        initializeDefaultTeams();
         loadCommands();
         loadListeners();
         saveDefaultConfig();
@@ -56,7 +60,8 @@ public final class ForceItemBattle extends JavaPlugin {
     public void initializeData(){
         data.setInstance(this);
         data.setConfigs(new Configs());
-        //data.setTimer(new Timer());
+        data.setTeamManager(new TeamManager());
+        data.setTablistManager(new TablistManager());
         data.setBackpackManager(new BackpackManager());
         data.setTaskManager(new TaskManager());
         data.setLogic(new Logic());
@@ -64,8 +69,11 @@ public final class ForceItemBattle extends JavaPlugin {
         data.setResultInventoryManager(new ResultInventoryManager());
     }
 
+    public void initializeDefaultTeams(){
+        new DefaultTeams();
+    }
+
     public void saveConfigs(){
-        //data.getTimer().saveTime();
         data.getBackpackManager().save();
         data.getGameCountdown().saveTime();
         data.getTaskManager().saveTasks();

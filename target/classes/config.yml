@@ -3,4 +3,5 @@
 #7200 = 2:00h
 #3600 = 1:00h
 time: 10800
+#Stelle die Anzahl der Joker ein
 joker: 5

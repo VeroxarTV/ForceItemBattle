@@ -58,10 +58,10 @@ public class ResetCommand implements CommandExecutor {
                 gameCountdown.setRunning(false);
                 gameCountdown.setFinished(false);
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(Messages.PREFIX.append(Component.text("The game has been reset!").color(NamedTextColor.GRAY)));
+                    player.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde zurückgesetzt!").color(NamedTextColor.GRAY)));
                 }
             } else {
-                sender.sendMessage(Messages.PREFIX.append(Component.text("The game has been reset!").color(NamedTextColor.GRAY)));
+                sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde zurückgesetzt!").color(NamedTextColor.GRAY)));
             }
         } else {
             sendUsage(sender);
@@ -70,6 +70,6 @@ public class ResetCommand implements CommandExecutor {
     }
 
     public void sendUsage(CommandSender sender) {
-        sender.sendMessage(Messages.PREFIX.append(Component.text("Please use /reset to reset the game").color(NamedTextColor.GRAY)));
+        sender.sendMessage(Messages.PREFIX.append(Component.text("Bitte nutze /reset um das Spiel zurückzusetzen").color(NamedTextColor.GRAY)));
     }
 }

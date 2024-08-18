@@ -115,7 +115,7 @@ public class GameCountdown {
             player.teleportAsync(spawn);
             player.playSound(player, Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
             if (player.hasPermission("forceItemBattle.commands.result")) {
-                player.sendMessage(Messages.PREFIX.append(Component.text("Execute /result to display the result!").color(NamedTextColor.GRAY)));
+                player.sendMessage(Messages.PREFIX.append(Component.text("Führe /result aus, um das Ergebnis anzuzeigen!").color(NamedTextColor.GRAY)));
             }
         }
         logic.removeAllTasks();

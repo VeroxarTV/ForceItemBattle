@@ -5,8 +5,10 @@ import de.veroxar.forceItemBattle.config.Configs;
 import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.randomizer.RandomItemGenerator;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
+import de.veroxar.forceItemBattle.team.TeamManager;
 import de.veroxar.forceItemBattle.util.Logic;
 import de.veroxar.forceItemBattle.util.ResultInventoryManager;
+import de.veroxar.forceItemBattle.util.TablistManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Data {
@@ -19,6 +21,8 @@ public class Data {
     TaskManager taskManager;
     Logic logic;
     ResultInventoryManager resultInventoryManager;
+    TeamManager teamManager;
+    TablistManager tablistManager;
 
     //SETTER
     public void setInstance(JavaPlugin instance) {
@@ -45,6 +49,12 @@ public class Data {
     public void setResultInventoryManager(ResultInventoryManager resultInventoryManager) {
         this.resultInventoryManager = resultInventoryManager;
     }
+    public void setTeamManager(TeamManager teamManager) {
+        this.teamManager = teamManager;
+    }
+    public void setTablistManager(TablistManager tablistManager) {
+        this.tablistManager = tablistManager;
+    }
 
     //GETTER
     public JavaPlugin getInstance() {
@@ -70,5 +80,11 @@ public class Data {
     }
     public ResultInventoryManager getResultInventoryManager() {
         return resultInventoryManager;
+    }
+    public TeamManager getTeamManager() {
+        return teamManager;
+    }
+    public TablistManager getTablistManager() {
+        return tablistManager;
     }
 }

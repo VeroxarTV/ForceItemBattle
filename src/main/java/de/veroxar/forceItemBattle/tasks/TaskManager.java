@@ -3,6 +3,7 @@ package de.veroxar.forceItemBattle.tasks;
 import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.data.Data;
+import de.veroxar.forceItemBattle.team.TeamManager;
 import org.bukkit.Material;
 import java.util.*;
 
@@ -11,11 +12,14 @@ public class TaskManager {
     Data data = ForceItemBattle.getData();
     Configuration taskConfig = data.getConfigs().getTaskConfig();
     Configuration completedTaskConfig = data.getConfigs().getCompletedTaskConfig();
+    TeamManager teamManager = data.getTeamManager();
     private final Map<UUID, Task> map;
+    private final Map<String, TeamTask> teamMap;
     private final Map<UUID, List<CompletedTask>> map2;
 
     public TaskManager() {
         map = new HashMap<>();
+        teamMap = new HashMap<>();
         map2 = new HashMap<>();
 
         loadTasks();
@@ -32,12 +36,30 @@ public class TaskManager {
         return task;
     }
 
+    public TeamTask getTeamTask(String teamName){
+        if (teamMap.containsKey(teamName)) {
+            return teamMap.get(teamName);
+        }
+
+        TeamTask teamTask = new TeamTask(teamName);
+        teamMap.put(teamName, teamTask);
+        return teamTask;
+    }
+
     public void setTask(UUID uuid, Material material) {
         if (map.containsKey(uuid))
             removeTask(uuid);
 
         Task task = new Task(uuid, material);
         map.put(uuid, task);
+    }
+
+    public void setTeamTask(String teamName, Material material) {
+        if (teamMap.containsKey(teamName))
+            removeTask(teamName);
+
+        TeamTask teamTask = new TeamTask(teamName, material);
+        teamMap.put(teamName, teamTask);
     }
 
     public void removeTask(UUID uuid) {
@@ -49,8 +71,21 @@ public class TaskManager {
             taskConfig.toFileConfiguration().set(uuid.toString(), null);
     }
 
+    public void removeTask(String teamName) {
+        if (teamMap.containsKey(teamName)) {
+            TeamTask teamTask = teamMap.get(teamName);
+            teamMap.remove(teamName, teamTask);
+        }
+        if (taskConfig.toFileConfiguration().contains(teamName + ".task"))
+            taskConfig.toFileConfiguration().set(teamName, null);
+    }
+
     public boolean hasTask(UUID uuid) {
         return map.containsKey(uuid);
+    }
+
+    public boolean hasTeamTask(String teamName) {
+        return teamMap.containsKey(teamName);
     }
 
      public void createCompletedTask(UUID uuid, Material material, Integer time, boolean usedJoker) {
