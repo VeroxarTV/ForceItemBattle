@@ -7,18 +7,24 @@ import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.events.ConnectionListener;
 import de.veroxar.forceItemBattle.events.GameListener;
 import de.veroxar.forceItemBattle.events.JokerListener;
+import de.veroxar.forceItemBattle.events.TeamInvListener;
 import de.veroxar.forceItemBattle.randomizer.RandomItemGenerator;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.team.DefaultTeams;
 import de.veroxar.forceItemBattle.team.TeamManager;
-import de.veroxar.forceItemBattle.util.Logic;
-import de.veroxar.forceItemBattle.util.ResultInventoryManager;
-import de.veroxar.forceItemBattle.util.TablistManager;
+import de.veroxar.forceItemBattle.util.*;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Objects;
+import java.util.Properties;
 
 /*
 @Author: Veroxar
@@ -30,6 +36,12 @@ public final class ForceItemBattle extends JavaPlugin {
     private static final Data data = new Data();
     private final Plugin instance = this;
     private final PluginManager manager = instance.getServer().getPluginManager();
+    private final WorldManager worldManager = new WorldManager();
+
+    @Override
+    public void onLoad() {
+        disableSpawnProtection();
+    }
 
     @Override
     public void onEnable() {
@@ -38,16 +50,42 @@ public final class ForceItemBattle extends JavaPlugin {
         loadCommands();
         loadListeners();
         saveDefaultConfig();
+        data.getTablistManager().setAllPlayerTeams();
     }
 
-    public void loadListeners(){
+    private void disableSpawnProtection() {
+        // Pfad zur server.properties Datei
+        File serverPropertiesFile = new File(getServer().getWorldContainer(), "server.properties");
+
+        // Properties-Objekt erstellen
+        Properties properties = new Properties();
+
+        try (FileInputStream in = new FileInputStream(serverPropertiesFile)) {
+            // Datei einlesen
+            properties.load(in);
+
+            // Spawn-Protection deaktivieren
+            properties.setProperty("spawn-protection", "0");
+
+            // Änderungen speichern
+            try (FileOutputStream out = new FileOutputStream(serverPropertiesFile)) {
+                properties.store(out, null);
+                getLogger().info("Spawn-Protection wurde deaktiviert.");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadListeners(){
         manager.registerEvents(new ConnectionListener(), this);
         manager.registerEvents(new GameListener(), this);
         manager.registerEvents(new JokerListener(), this);
+        manager.registerEvents(new TeamInvListener(), this);
     }
 
-    public void loadCommands(){
-        //Objects.requireNonNull(getCommand("timer")).setExecutor(new TimerCommand());
+    private void loadCommands(){
         Objects.requireNonNull(getCommand("backpack")).setExecutor(new BackpackCommand());
         Objects.requireNonNull(getCommand("start")).setExecutor(new StartCommand());
         Objects.requireNonNull(getCommand("reset")).setExecutor(new ResetCommand());
@@ -55,25 +93,28 @@ public final class ForceItemBattle extends JavaPlugin {
         Objects.requireNonNull(getCommand("result")).setExecutor(new ResultCommand());
         Objects.requireNonNull(getCommand("task")).setExecutor(new SetTaskCommand());
         Objects.requireNonNull(getCommand("end")).setExecutor(new EndCommand());
+        Objects.requireNonNull(getCommand("team")).setExecutor(new TeamCommand());
     }
 
-    public void initializeData(){
+    private void initializeData(){
         data.setInstance(this);
         data.setConfigs(new Configs());
         data.setTeamManager(new TeamManager());
         data.setTablistManager(new TablistManager());
+        data.setTeamInventoryManager(new TeamInventoryManager());
         data.setBackpackManager(new BackpackManager());
         data.setTaskManager(new TaskManager());
         data.setLogic(new Logic());
         data.setRadomItemGenerator(new RandomItemGenerator());
         data.setResultInventoryManager(new ResultInventoryManager());
+        data.setWorldManager(worldManager);
     }
 
-    public void initializeDefaultTeams(){
+    private void initializeDefaultTeams(){
         new DefaultTeams();
     }
 
-    public void saveConfigs(){
+    private void saveConfigs(){
         data.getBackpackManager().save();
         data.getGameCountdown().saveTime();
         data.getTaskManager().saveTasks();
@@ -85,7 +126,13 @@ public final class ForceItemBattle extends JavaPlugin {
     public void onDisable() {
         saveConfigs();
         data.getLogic().removeAllTasks();
+        for (World world : Bukkit.getWorlds()) {
+            world.getWorldFolder().delete();
+            worldManager.deleteWorld(world.getName());
+        }
     }
+
+
 
     public static Data getData() {
         return data;

@@ -2,7 +2,6 @@ package de.veroxar.forceItemBattle.team;
 
 import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.data.Data;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 public class DefaultTeams {
@@ -13,21 +12,14 @@ public class DefaultTeams {
         createDefaultTeams();
     }
 
-    private Component createPrefix(String teamName, NamedTextColor color) {
-        Component bracketL = Component.text("[").color(NamedTextColor.GRAY);
-        Component teamNameComponent = Component.text(teamName).color(color);
-        Component bracketR = Component.text("] ").color(NamedTextColor.GRAY);
-        return bracketL.append(teamNameComponent).append(bracketR).append(Component.text("").color(NamedTextColor.WHITE));
-    }
-
     public void createDefaultTeams() {
         teamManager.createTeam(
-                "RED", createPrefix("RED", NamedTextColor.RED), NamedTextColor.RED, false);
+                "RED", "§8[§cRED§8]§r ", NamedTextColor.RED, false);
         teamManager.createTeam(
-                "BLUE", createPrefix("BLUE", NamedTextColor.BLUE), NamedTextColor.BLUE, false);
+                "BLUE", "§8[§9BLUE§8]§r ", NamedTextColor.BLUE, false);
         teamManager.createTeam(
-                "YELLOW", createPrefix("YELLOW", NamedTextColor.YELLOW), NamedTextColor.YELLOW, false);
+                "YELLOW", "§8[§eYELLOW§8]§r ", NamedTextColor.YELLOW, false);
         teamManager.createTeam(
-                "GREEN", createPrefix("GREEN", NamedTextColor.GREEN), NamedTextColor.GREEN, false);
+                "GREEN", "§8[§aGREEN§8]§r ", NamedTextColor.GREEN, false);
     }
 }

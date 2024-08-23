@@ -4,7 +4,9 @@ import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.messages.Messages;
+import de.veroxar.forceItemBattle.team.TeamManager;
 import de.veroxar.forceItemBattle.util.Logic;
+import de.veroxar.forceItemBattle.util.TeamInventoryManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -21,6 +23,8 @@ public class StartCommand implements CommandExecutor {
     Data data = ForceItemBattle.getData();
     GameCountdown gameCountdown = data.getGameCountdown();
     Logic logic = data.getLogic();
+    TeamInventoryManager teamInventoryManager = data.getTeamInventoryManager();
+    TeamManager teamManager = data.getTeamManager();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
@@ -37,10 +41,18 @@ public class StartCommand implements CommandExecutor {
                     player.getWorld().setTime(0);
                     player.getWorld().setDifficulty(Difficulty.EASY);
                     player.getWorld().setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
-                    player.getWorld().setGameRule(GameRule.DO_WEATHER_CYCLE, true);
-                    logic.giveJokers();
-                    logic.newTask(player);
+
+                    if (!teamInventoryManager.isTeamMode()) {
+                        logic.newTask(player);
+                    }
                 }
+
+                if (teamInventoryManager.isTeamMode()) {
+                    for (String activeTeam : teamManager.getActiveTeams()) {
+                        logic.newTeamTask(activeTeam);
+                    }
+                }
+                logic.giveJokers();
 
             } else {
                 sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde bereits gestartet!").color(NamedTextColor.RED)));

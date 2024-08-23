@@ -18,12 +18,11 @@ public class TablistManager {
     final Data data = ForceItemBattle.getData();
     Scoreboard scoreboard;
     Team team;
-    Component teamPrefix;
+    String teamPrefix;
     NamedTextColor teamColor;
     final List<String> validTeams = new ArrayList<>();
+    private TeamManager teamManager = data.getTeamManager();
     boolean allowFriendlyFire;
-
-    final TeamManager teamManager = data.getTeamManager();
 
     public TablistManager() {
         this.validTeams.add("RED");
@@ -34,6 +33,10 @@ public class TablistManager {
 
     public void setAllPlayerTeams() {
         Bukkit.getOnlinePlayers().forEach(this::setPlayerTeams);
+    }
+
+    public void clearAllPlayerTeams() {
+        Bukkit.getOnlinePlayers().forEach(this::clearPlayerTeams);
     }
 
     public void setPlayerTeams(Player player) {
@@ -48,7 +51,7 @@ public class TablistManager {
             this.teamColor = teamManager.getTeamColor(teamName);
             this.allowFriendlyFire = teamManager.getAllowFriendlyFire(teamName);
 
-            team.prefix(teamPrefix);
+            team.setPrefix(teamPrefix);
             team.color(teamColor);
             team.setAllowFriendlyFire(allowFriendlyFire);
 
@@ -58,6 +61,20 @@ public class TablistManager {
                     player.setScoreboard(scoreboard);
                 }
             }
+        }
+    }
+
+    public void clearPlayerTeams(Player player) {
+        scoreboard = player.getScoreboard();
+        if (scoreboard.getTeam(player.getUniqueId().toString()) == null) {
+            team = scoreboard.registerNewTeam(player.getUniqueId().toString());
+        } else {
+            team = scoreboard.getTeam(player.getUniqueId().toString());
+            team.prefix(Component.text(""));
+            team.color(NamedTextColor.WHITE);
+            team.setAllowFriendlyFire(true);
+            team.addPlayer(player);
+            player.setScoreboard(scoreboard);
         }
     }
 }

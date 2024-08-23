@@ -8,6 +8,8 @@ import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.messages.Messages;
 import de.veroxar.forceItemBattle.tasks.Task;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
+import de.veroxar.forceItemBattle.tasks.TeamTask;
+import de.veroxar.forceItemBattle.team.TeamManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
@@ -31,11 +33,13 @@ public class Logic {
     JavaPlugin instance = data.getInstance();
     BackpackManager backpackManager = data.getBackpackManager();
     GameCountdown gameCountdown;
+    TeamManager teamManager;
 
     public Logic(){
         data.setLogic(this);
         data.setGameCountdown(new GameCountdown());
         gameCountdown = data.getGameCountdown();
+        teamManager = data.getTeamManager();
     }
 
     public Component getCurrentItemName(@NotNull Player player) {
@@ -65,6 +69,23 @@ public class Logic {
                 .append(getCurrentItemName(player).append(Component.text("]").color(NamedTextColor.GRAY))));
         showBlockAbovePlayer(player, material);
         checkForItem(player);
+    }
+
+    public void newTeamTask(String teamName) {
+        TeamTask teamTask = taskManager.getTeamTask(teamName);
+        Material material = teamTask.getMaterial();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            System.out.println(teamManager.isInTeam(player, teamName));
+            if (teamManager.isInTeam(player, teamName)) {
+                player.sendMessage(Messages.PREFIX.append(Component.text("Nächste Aufgabe: ").color(NamedTextColor.GRAY)
+                        .append(getCurrentItemName(player))));
+                Objects.requireNonNull(player.getScoreboard().getTeam(teamName)).suffix(Component.text(" [").color(NamedTextColor.GRAY)
+                        .append(getCurrentItemName(player).append(Component.text("]").color(NamedTextColor.GRAY))));
+                showBlockAbovePlayer(player, material);
+                checkForItem(player);
+            }
+        }
     }
 
     public void setTask(@NotNull Player player, Material material) {

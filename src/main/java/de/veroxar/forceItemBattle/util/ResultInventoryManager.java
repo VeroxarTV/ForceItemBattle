@@ -352,7 +352,7 @@ public class ResultInventoryManager {
                     players.sendMessage(posTXT.append(playerTXT).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
             }
-            players.playSound(players.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+            players.playSound(players, Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
         }
         alreadyUsed = true;
     }

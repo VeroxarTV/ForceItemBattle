@@ -7,6 +7,7 @@ public class Configs {
     final Configuration playersConfig = new Configuration();
     final Configuration completedTaskConfig = new Configuration();
     final Configuration teamsConfig = new Configuration();
+    final Configuration settingsConfig = new Configuration();
 
     public Configs() {
         createConfigs();
@@ -19,6 +20,7 @@ public class Configs {
         playersConfig.createConfiguration("players");
         completedTaskConfig.createConfiguration("completed_task");
         teamsConfig.createConfiguration("teams");
+        settingsConfig.createConfiguration("settings");
     }
 
     public Configuration getBackpackConfig() {
@@ -43,5 +45,9 @@ public class Configs {
 
     public Configuration getTeamsConfig() {
         return teamsConfig;
+    }
+
+    public Configuration getSettingsConfig() {
+        return settingsConfig;
     }
 }

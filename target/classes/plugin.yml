@@ -4,6 +4,7 @@ main: de.veroxar.forceItemBattle.ForceItemBattle
 api-version: '1.21'
 authors: [ Veroxar ]
 description: Force Item Battle Plugin
+load: STARTUP
 
 commands:
   backpack:
@@ -20,3 +21,5 @@ commands:
     permission: forceItemBattle.commands.end
   task:
     permission: forceItemBattle.dev.commands.task
+  team:
+    aliases: [ teams ]
