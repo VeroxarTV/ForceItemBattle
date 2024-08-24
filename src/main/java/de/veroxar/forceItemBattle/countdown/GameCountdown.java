@@ -4,12 +4,16 @@ import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.messages.Messages;
+import de.veroxar.forceItemBattle.team.TeamManager;
 import de.veroxar.forceItemBattle.util.Logic;
+import de.veroxar.forceItemBattle.util.TeamInventoryManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -20,6 +24,8 @@ public class GameCountdown {
     Configuration countdownConfig = data.getConfigs().getCountdownConfig();
     JavaPlugin instance = data.getInstance();
     Logic logic = data.getLogic();
+    TeamInventoryManager inventoryManager = data.getTeamInventoryManager();
+    TeamManager teamManager = data.getTeamManager();
 
     private boolean running;
     private boolean finished;
@@ -91,7 +97,15 @@ public class GameCountdown {
             Component separatorComponent = Component.text(" - ")
                     .color(NamedTextColor.GRAY);
 
-            Component itemNameComponent = logic.getCurrentItemName(player);
+            Component itemNameComponent = Component.text("NULL");
+            if (!inventoryManager.isTeamMode()) {
+                itemNameComponent = logic.getCurrentItemName(player);
+            }
+
+            for (String activeTeam : teamManager.getActiveTeams()) {
+                if (teamManager.isInTeam(player, activeTeam))
+                    itemNameComponent = logic.getCurrentTeamItemName(activeTeam);
+            }
 
             // Zusammenfügen der Komponenten
             Component actionBarMessage = timeComponent.append(separatorComponent).append(itemNameComponent);
@@ -118,7 +132,10 @@ public class GameCountdown {
                 player.sendMessage(Messages.PREFIX.append(Component.text("Führe /result aus, um das Ergebnis anzuzeigen!").color(NamedTextColor.GRAY)));
             }
         }
-        logic.removeAllTasks();
+        if (inventoryManager.isTeamMode()) {
+            logic.removeAllTeamTasks();
+        } else
+            logic.removeAllTasks();
         setTime(instance.getConfig().getInt(".time"));
     }
 

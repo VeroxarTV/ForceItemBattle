@@ -7,11 +7,13 @@ import de.veroxar.forceItemBattle.messages.Messages;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -120,5 +122,15 @@ public class TeamManager {
 
     public ArrayList<String> getActiveTeams() {
         return activeTeams;
+    }
+
+    public List<Player> getPlayersInTeam(String teamName) {
+        List<Player> playerList = new ArrayList<>();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+           if (this.isInTeam(player, teamName)) {
+               playerList.add(player);
+           }
+        }
+        return playerList;
     }
 }

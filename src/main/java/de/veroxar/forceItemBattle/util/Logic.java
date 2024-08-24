@@ -29,7 +29,9 @@ public class Logic {
     Data data = ForceItemBattle.getData();
     TaskManager taskManager = data.getTaskManager();
     Configuration playersConfig = data.getConfigs().getPlayersConfig();
+    Configuration teamsConfig = data.getConfigs().getTeamsConfig();
     Map<UUID, Integer> playerPointsMap = new HashMap<>();
+    Map<String, Integer> teamPointsMap = new HashMap<>();
     JavaPlugin instance = data.getInstance();
     BackpackManager backpackManager = data.getBackpackManager();
     GameCountdown gameCountdown;
@@ -40,6 +42,20 @@ public class Logic {
         data.setGameCountdown(new GameCountdown());
         gameCountdown = data.getGameCountdown();
         teamManager = data.getTeamManager();
+    }
+
+    public Component getCurrentTeamItemName(String teamName) {
+        if (hasTeamTask(teamName)) {
+            Material material = taskManager.getTeamTask(teamName).getMaterial();
+            if (material.name().contains("BANNER_PATTERN")) {
+                Component translation = Component.translatable(Objects.requireNonNull(material.getItemTranslationKey())).color(NamedTextColor.GOLD);
+                Component sep = Component.text(": ").color(NamedTextColor.GRAY);
+                Component desc = Component.translatable(material.getItemTranslationKey() + ".desc").color(NamedTextColor.GOLD);
+                return translation.append(sep).append(desc);
+            }
+            return Component.translatable(Objects.requireNonNull(material.getItemTranslationKey())).color(NamedTextColor.GOLD);
+        }
+        return Component.text("");
     }
 
     public Component getCurrentItemName(@NotNull Player player) {
@@ -74,19 +90,16 @@ public class Logic {
     public void newTeamTask(String teamName) {
         TeamTask teamTask = taskManager.getTeamTask(teamName);
         Material material = teamTask.getMaterial();
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            System.out.println(teamManager.isInTeam(player, teamName));
-            if (teamManager.isInTeam(player, teamName)) {
-                player.sendMessage(Messages.PREFIX.append(Component.text("Nächste Aufgabe: ").color(NamedTextColor.GRAY)
-                        .append(getCurrentItemName(player))));
-                Objects.requireNonNull(player.getScoreboard().getTeam(teamName)).suffix(Component.text(" [").color(NamedTextColor.GRAY)
-                        .append(getCurrentItemName(player).append(Component.text("]").color(NamedTextColor.GRAY))));
-                showBlockAbovePlayer(player, material);
-                checkForItem(player);
-            }
+        for (Player player : teamManager.getPlayersInTeam(teamName)) {
+            player.sendMessage(Messages.PREFIX.append(Component.text("Nächste Aufgabe: ").color(NamedTextColor.GRAY)
+                    .append(getCurrentTeamItemName(teamName))));
+            Objects.requireNonNull(player.getScoreboard().getTeam(teamName)).suffix(Component.text(" [").color(NamedTextColor.GRAY)
+                    .append(getCurrentTeamItemName(teamName).append(Component.text("]").color(NamedTextColor.GRAY))));
+            showBlockAbovePlayer(player, material);
         }
+        checkForItem(teamName);
     }
+
 
     public void setTask(@NotNull Player player, Material material) {
         UUID uuid = player.getUniqueId();
@@ -106,8 +119,9 @@ public class Logic {
     public void removeTask(@NotNull Player player) {
         UUID uuid = player.getUniqueId();
         taskManager.removeTask(uuid);
-        if (player.getScoreboard().getTeam(player.getName()) != null)
+        if (player.getScoreboard().getTeam(player.getName()) != null) {
             Objects.requireNonNull(player.getScoreboard().getTeam(player.getName())).suffix(Component.text(""));
+        }
         for (ArmorStand armorStand : player.getWorld().getEntitiesByClass(ArmorStand.class)) {
             if (armorStand.getScoreboardTags().contains(player.getUniqueId().toString())) {
                 armorStand.remove();
@@ -115,9 +129,29 @@ public class Logic {
         }
     }
 
+    public void removeTeamTask(String teamName) {
+        taskManager.removeTask(teamName);
+        for (Player player : teamManager.getPlayersInTeam(teamName)) {
+            if (player.getScoreboard().getTeam(teamName) != null) {
+                Objects.requireNonNull(player.getScoreboard().getTeam(teamName)).suffix(Component.text(""));
+            }
+            for (ArmorStand armorStand : player.getWorld().getEntitiesByClass(ArmorStand.class)) {
+                if (armorStand.getScoreboardTags().contains(player.getUniqueId().toString())) {
+                    armorStand.remove();
+                }
+            }
+        }
+    }
+
     public void removeAllTasks() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             removeTask(player);
+        }
+    }
+
+    public void removeAllTeamTasks() {
+        for (String activeTeam : teamManager.getActiveTeams()) {
+            removeTeamTask(activeTeam);
         }
     }
 
@@ -135,6 +169,21 @@ public class Logic {
         newTask(player);
     }
 
+    public void completedTeamTask(String teamName, boolean usedJoker) {
+        Material material = taskManager.getTeamTask(teamName).getMaterial();
+        int time = gameCountdown.getTime();
+        for (Player player : teamManager.getPlayersInTeam(teamName)) {
+            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
+            player.sendMessage(Messages.PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
+                    .append(getCurrentTeamItemName(teamName).append(Component.text(" geschafft!").color(NamedTextColor.GREEN)))));
+        }
+        removeTeamTask(teamName);
+        addTeamPoint(teamName);
+        newTeamTask(teamName);
+        taskManager.createCompletedTeamTask(teamName, material, time, usedJoker);
+        taskManager.saveCompletedTasks();
+    }
+
     public void skipTask(@NotNull Player player) {
         player.sendMessage(Messages.PREFIX.append(Component.text("Aufgabe ").color(NamedTextColor.GRAY)
                 .append(getCurrentItemName(player).append(Component.text(" übersprungen").color(NamedTextColor.GREEN)))));
@@ -147,11 +196,23 @@ public class Logic {
         return taskManager.hasTask(uuid);
     }
 
+    public boolean hasTeamTask(String teamName) {
+        return taskManager.hasTeamTask(teamName);
+    }
+
     public void checkForItem(@NotNull Player player) {
         UUID uuid = player.getUniqueId();
         Task task = taskManager.getTask(uuid);
         if (player.getInventory().contains(task.getMaterial()))
                 completedTask(player, false);
+    }
+
+    public void checkForItem(String teamName) {
+        TeamTask teamTask = taskManager.getTeamTask(teamName);
+        for (Player player : teamManager.getPlayersInTeam(teamName)) {
+            if (player.getInventory().contains(teamTask.getMaterial()))
+                completedTeamTask(teamName, false);
+        }
     }
 
     public void createTeam(@NotNull Player player) {
@@ -245,6 +306,54 @@ public class Logic {
         return 0;
     }
 
+    public void addTeamPoint(String teamName) {
+
+        if (teamPointsMap.containsKey(teamName)) {
+            int currentPoints = teamPointsMap.get(teamName);
+            teamPointsMap.remove(teamName, currentPoints);
+            int newPoints = currentPoints + 1;
+            teamPointsMap.put(teamName, newPoints);
+        } else {
+            int configPoints = teamsConfig.toFileConfiguration().getInt(teamName + ".points");
+            int newPoints;
+            if (configPoints != 0) {
+                newPoints = configPoints + 1;
+            } else {
+                newPoints = 1;
+            }
+            teamPointsMap.put(teamName, newPoints);
+        }
+        saveTeamPoints();
+    }
+
+    public void saveTeamPoints() {
+        for (String activeTeam : teamManager.getActiveTeams()) {
+            int points = 0;
+            if (teamPointsMap.containsKey(activeTeam)) {
+                points = points + teamPointsMap.get(activeTeam);
+                teamsConfig.toFileConfiguration().set(activeTeam + ".points", points);
+                continue;
+            } else if (teamsConfig.toFileConfiguration().contains(activeTeam + ".points")) {
+                points = teamsConfig.toFileConfiguration().getInt(activeTeam + ".points");
+            }
+
+            teamsConfig.toFileConfiguration().set(activeTeam + ".points", points);
+
+        }
+        teamsConfig.saveConfiguration();
+    }
+
+    public int getTeamPoints(String teamName) {
+        if (teamPointsMap.containsKey(teamName)) {
+            return teamPointsMap.get(teamName);
+        }
+
+        if (teamsConfig.toFileConfiguration().contains(teamName + ".points")) {
+            return teamsConfig.toFileConfiguration().getInt(teamName + ".points");
+        }
+        return 0;
+    }
+
     public void resetPlayersConfig() {
         playerPointsMap.clear();
 
@@ -253,6 +362,15 @@ public class Logic {
         }
 
         playersConfig.saveConfiguration();
+    }
+
+    public void resetTeamsConfig() {
+        teamPointsMap.clear();
+
+        for (String activeTeam : teamManager.getActiveTeams()) {
+            teamsConfig.toFileConfiguration().set(activeTeam + ".points", 0);
+        }
+        teamsConfig.saveConfiguration();
     }
 
     public void giveJokers() {
@@ -324,5 +442,18 @@ public class Logic {
         }
 
         return new ArrayList<>(playerPoints.entrySet());
+    }
+
+    public List<Map.Entry<String, Integer>> getTeamPlacement() {
+        Map<String, Integer> teamPoints = new HashMap<>();
+
+        for (String activeTeam : teamManager.getActiveTeams()) {
+            int points = getTeamPoints(activeTeam);
+            if (points > 0) {
+                teamPointsMap.put(activeTeam, points);
+            }
+        }
+
+        return new ArrayList<>(teamPointsMap.entrySet());
     }
 }

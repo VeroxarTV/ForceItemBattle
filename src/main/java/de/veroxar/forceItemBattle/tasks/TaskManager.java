@@ -16,14 +16,18 @@ public class TaskManager {
     private final Map<UUID, Task> map;
     private final Map<String, TeamTask> teamMap;
     private final Map<UUID, List<CompletedTask>> map2;
+    private final Map<String, List<CompletedTeamTask>> teamMap2;
 
     public TaskManager() {
         map = new HashMap<>();
         teamMap = new HashMap<>();
         map2 = new HashMap<>();
+        teamMap2 = new HashMap<>();
 
+        loadTeamTasks();
         loadTasks();
         loadCompletedTasks();
+        loadCompletedTeamTasks();
     }
 
     public Task getTask(UUID uuid) {
@@ -99,6 +103,17 @@ public class TaskManager {
         map2.put(uuid, list);
      }
 
+    public void createCompletedTeamTask(String teamName, Material material, Integer time, boolean usedJoker) {
+        List<CompletedTeamTask> list = getCompletedTeamTaskList(teamName);
+        CompletedTeamTask completedTask = new CompletedTeamTask(teamName, material, time, usedJoker);
+        list.add(completedTask);
+        if (teamMap2.containsKey(teamName)) {
+            teamMap2.replace(teamName, list);
+            return;
+        }
+        teamMap2.put(teamName, list);
+    }
+
      public List<CompletedTask> getCompletedTaskList(UUID uuid) {
         if (map2.containsKey(uuid)) {
             return map2.get(uuid);
@@ -106,12 +121,27 @@ public class TaskManager {
          return new ArrayList<>();
      }
 
+    public List<CompletedTeamTask> getCompletedTeamTaskList(String teamName) {
+        if (teamMap2.containsKey(teamName)) {
+            return teamMap2.get(teamName);
+        }
+        return new ArrayList<>();
+    }
+
     public void setCompletedTaskList(UUID uuid ,List<CompletedTask> completedTaskList) {
         if (map2.containsKey(uuid)) {
             map2.replace(uuid, completedTaskList);
             return;
         }
         map2.put(uuid, completedTaskList);
+    }
+
+    public void setCompletedTeamTaskList(String teamName ,List<CompletedTeamTask> completedTeamTaskList) {
+        if (teamMap2.containsKey(teamName)) {
+            teamMap2.replace(teamName, completedTeamTaskList);
+            return;
+        }
+        teamMap2.put(teamName, completedTeamTaskList);
     }
 
     private void loadTasks() {
@@ -137,6 +167,26 @@ public class TaskManager {
 
         taskConfig.toFileConfiguration().set("tasks", uuids);
         map.forEach((uuid, task) -> taskConfig.toFileConfiguration().set(uuid.toString() + ".task", task.getMaterial().name()));
+        taskConfig.saveConfiguration();
+    }
+
+    private void loadTeamTasks() {
+        List<String> teamNames = taskConfig.toFileConfiguration().getStringList("teamTasks");
+
+        teamNames.forEach(s ->{
+            String material = taskConfig.toFileConfiguration().getString(s + ".task");
+
+            assert material != null;
+            teamMap.put(s, new TeamTask(s, Material.getMaterial(material)));
+        });
+    }
+
+    public void saveTeamTasks(){
+
+        List<String> teamNames = new ArrayList<>(teamMap.keySet());
+
+        taskConfig.toFileConfiguration().set("teamTasks", teamNames);
+        teamMap.forEach((teamName, teamTask) -> taskConfig.toFileConfiguration().set(teamName + ".task", teamTask.getMaterial().name()));
         taskConfig.saveConfiguration();
     }
 
@@ -174,4 +224,34 @@ public class TaskManager {
         completedTaskConfig.saveConfiguration();
 
     }
+
+    private void loadCompletedTeamTasks() {
+        List<String> teamNames = completedTaskConfig.toFileConfiguration().getStringList("completed_team_tasks");
+        teamNames.forEach(s -> {
+            List<String> completedTeamTasks = completedTaskConfig.toFileConfiguration().getStringList(s + ".completed_team_tasks");
+            List<CompletedTeamTask> completedTeamTaskList = new ArrayList<>(); // Erstelle eine neue Liste für jede UUID
+
+            completedTeamTasks.forEach(s1 -> completedTeamTaskList.add(CompletedTeamTask.fromString(s1)));
+
+            setCompletedTeamTaskList(s, completedTeamTaskList);
+        });
+    }
+
+    public void saveCompletedTeamTasks(){
+
+        List<String> teamNames = new ArrayList<>(teamMap2.keySet());
+
+        for (String s : teamNames) {
+            List<String> completedTeamTasksStringList = new ArrayList<>();
+            for (CompletedTeamTask completedTeamTask : teamMap2.get(s)) {
+                completedTeamTasksStringList.add(completedTeamTask.toString());
+            }
+            completedTaskConfig.toFileConfiguration().set(s + ".completed_team_tasks", completedTeamTasksStringList);
+        }
+
+        completedTaskConfig.toFileConfiguration().set("completed_team_tasks", teamNames);
+        completedTaskConfig.saveConfiguration();
+
+    }
+
 }

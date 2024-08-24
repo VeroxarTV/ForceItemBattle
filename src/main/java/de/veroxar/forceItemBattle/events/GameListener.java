@@ -6,8 +6,10 @@ import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
+import de.veroxar.forceItemBattle.team.TeamManager;
 import de.veroxar.forceItemBattle.util.Logic;
 import de.veroxar.forceItemBattle.util.ResultInventoryManager;
+import de.veroxar.forceItemBattle.util.TeamInventoryManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -34,10 +36,19 @@ public class GameListener implements Listener {
     TaskManager taskManager = data.getTaskManager();
     ResultInventoryManager resultInventoryManager = data.getResultInventoryManager();
     GameCountdown gameCountdown = data.getGameCountdown();
+    TeamManager teamManager = data.getTeamManager();
+    TeamInventoryManager teamInventoryManager = data.getTeamInventoryManager();
 
     @EventHandler
     public void onEntityPickupItem(EntityPickupItemEvent event) {
         if (event.getEntity() instanceof Player player) {
+            if (teamInventoryManager.isTeamMode()) {
+                String teamName = teamManager.getTeamName(player);
+                if (event.getItem().getItemStack().getType().equals(taskManager.getTeamTask(teamName).getMaterial())) {
+                    logic.completedTeamTask(teamName, false);
+                }
+                return;
+            }
             UUID uuid = player.getUniqueId();
             if (event.getItem().getItemStack().getType().equals(taskManager.getTask(uuid).getMaterial())) {
                 logic.completedTask(player, false);
@@ -69,9 +80,18 @@ public class GameListener implements Listener {
                 event.setCancelled(true);
             }
 
-            if (event.getCurrentItem() != null)
+            if (event.getCurrentItem() != null) {
+                if (teamInventoryManager.isTeamMode()) {
+                    String teamName = teamManager.getTeamName(player);
+                    if (event.getCurrentItem().getType().equals(taskManager.getTeamTask(teamName).getMaterial())) {
+                        logic.completedTeamTask(teamName, false);
+                    }
+                    return;
+                }
                 if (event.getCurrentItem().getType().equals(taskManager.getTask(uuid).getMaterial())) {
                     logic.completedTask(player, false);
+            }
+
             }
         }
     }
@@ -79,6 +99,15 @@ public class GameListener implements Listener {
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
         if (event.getWhoClicked() instanceof Player player) {
+            if (teamInventoryManager.isTeamMode()) {
+                String teamName = teamManager.getTeamName(player);
+                if (event.getCursor()!= null)
+                    if (event.getCursor().getType().equals(taskManager.getTeamTask(teamName).getMaterial())) {
+                        logic.completedTeamTask(teamName, false);
+                    }
+                return;
+            }
+
             UUID uuid = player.getUniqueId();
 
             if (event.getCursor()!= null)

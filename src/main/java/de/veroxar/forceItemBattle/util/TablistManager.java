@@ -52,6 +52,7 @@ public class TablistManager {
             this.allowFriendlyFire = teamManager.getAllowFriendlyFire(teamName);
 
             team.setPrefix(teamPrefix);
+            team.setSuffix("");
             team.color(teamColor);
             team.setAllowFriendlyFire(allowFriendlyFire);
 

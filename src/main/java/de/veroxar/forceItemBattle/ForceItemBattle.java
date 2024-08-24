@@ -117,8 +117,10 @@ public final class ForceItemBattle extends JavaPlugin {
     private void saveConfigs(){
         data.getBackpackManager().save();
         data.getGameCountdown().saveTime();
+        data.getTaskManager().saveTeamTasks();
         data.getTaskManager().saveTasks();
         data.getLogic().savePoints();
+        data.getTaskManager().saveCompletedTeamTasks();
         data.getTaskManager().saveCompletedTasks();
     }
 

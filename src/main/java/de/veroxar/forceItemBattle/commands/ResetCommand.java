@@ -6,8 +6,12 @@ import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.messages.Messages;
 import de.veroxar.forceItemBattle.tasks.CompletedTask;
+import de.veroxar.forceItemBattle.tasks.CompletedTeamTask;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
+import de.veroxar.forceItemBattle.team.TeamManager;
 import de.veroxar.forceItemBattle.util.Logic;
+import de.veroxar.forceItemBattle.util.TablistManager;
+import de.veroxar.forceItemBattle.util.TeamInventoryManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -29,6 +33,9 @@ public class ResetCommand implements CommandExecutor {
     Logic logic = data.getLogic();
     BackpackManager backpackManager = data.getBackpackManager();
     TaskManager taskManager = data.getTaskManager();
+    TeamManager teamManager = data.getTeamManager();
+    TeamInventoryManager inventoryManager = data.getTeamInventoryManager();
+    TablistManager tablistManager = data.getTablistManager();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
@@ -36,6 +43,7 @@ public class ResetCommand implements CommandExecutor {
         if (args.length == 0) {
             instance.reloadConfig();
             logic.resetPlayersConfig();
+            logic.resetTeamsConfig();
             backpackManager.clear();
             ResultCommand.currentIndex = -1;
             if (instance.getConfig().getInt(".time") != 0) {
@@ -52,6 +60,20 @@ public class ResetCommand implements CommandExecutor {
                 taskManager.saveCompletedTasks();
                 logic.removeTask(player);
                 player.getInventory().clear();
+            }
+
+            if (inventoryManager.isTeamMode()) {
+                for (String activeTeam : teamManager.getActiveTeams()) {
+                    List<CompletedTeamTask> list = taskManager.getCompletedTeamTaskList(activeTeam);
+                    list.clear();
+                    logic.removeTeamTask(activeTeam);
+                    taskManager.setCompletedTeamTaskList(activeTeam, list);
+                    taskManager.saveCompletedTeamTasks();
+                    for (Player player : teamManager.getPlayersInTeam(activeTeam)) {
+                        teamManager.quitTeam(player, activeTeam);
+                    }
+                }
+                tablistManager.clearAllPlayerTeams();
             }
 
             if (gameCountdown.isRunning()) {

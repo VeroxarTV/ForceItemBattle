@@ -4,6 +4,7 @@ import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.tasks.CompletedTask;
+import de.veroxar.forceItemBattle.tasks.CompletedTeamTask;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -54,6 +55,19 @@ public class ResultInventoryManager {
         return createInventoryWithAnimation(completedTaskList, player, pos);
     }
 
+    public Inventory createResultInv(String teamName, int pos) {
+        List<CompletedTeamTask> completedTeamTaskList = taskManager.getCompletedTeamTaskList(teamName);
+
+        maxPages = (int) Math.ceil(completedTeamTaskList.size() / 35.0); // Berechnet die Anzahl der benötigten Seiten
+        currentPage = 1;
+        moreThanOnePage = currentPage < maxPages;
+        alreadyUsed = false;
+        inAnimation = true;
+
+
+        return createInventoryWithAnimation(completedTeamTaskList, teamName, pos);
+    }
+
     /**
      * Erstellt ein Inventar für abgeschlossene Aufgaben ohne Animation.
      * @param player Der Spieler, für den das Inventar geöffnet wird.
@@ -66,6 +80,14 @@ public class ResultInventoryManager {
         currentPage = 1;
 
         return createInventoryWithoutAnimation(completedTaskList, player);
+    }
+
+    public Inventory createResultInvWithoutAnimation(String teamName) {
+        List<CompletedTeamTask> completedTeamTaskList = taskManager.getCompletedTeamTaskList(teamName);
+        maxPages = (int) Math.ceil(completedTeamTaskList.size() / 35.0);
+        currentPage = 1;
+
+        return createInventoryWithoutAnimation(completedTeamTaskList, teamName);
     }
 
     /**
@@ -89,6 +111,15 @@ public class ResultInventoryManager {
             currentPage--;
         }
         updateInventoryWithCurrentPageAnimated(inventory, player, position);
+    }
+
+    public void switchPagesAnimated(Inventory inventory, String teamName, Integer position, boolean nextPage) {
+        if (nextPage && currentPage < maxPages) {
+            currentPage++;
+        } else if (!nextPage && currentPage > 1) {
+            currentPage--;
+        }
+        updateInventoryWithCurrentPageAnimated(inventory, teamName, position);
     }
 
     private Inventory createInventoryWithAnimation(List<CompletedTask> completedTaskList, Player player, int position) {
@@ -133,6 +164,48 @@ public class ResultInventoryManager {
         return inventory;
     }
 
+    private Inventory createInventoryWithAnimation(List<CompletedTeamTask> completedTeamTaskList, String teamName, int position) {
+        Inventory inventory = Bukkit.createInventory(null, 9 * 6, Component.text("Geschaffte Aufgaben"));
+
+        fillDefaultGlassPanes(inventory);
+
+        int delay = 0;
+        int slotIndex = 9;
+        for (CompletedTeamTask completedTeamTask : completedTeamTaskList) {
+            while (slotIndex < inventory.getSize()) {
+                if (slotIndex % 9 != 0 && (slotIndex + 1) % 9 != 0) {
+                    final int currentSlot = slotIndex;
+
+                    Bukkit.getScheduler().runTaskLater(instance, () -> {
+                        addItemToInventory(inventory, completedTeamTask, currentSlot);
+                        playItemPickupSoundForAllPlayers();
+
+                        int nextSlot = getNextAvailableSlot(inventory, currentSlot);
+                        // Überprüfen, ob das Inventar voll ist
+                        if (nextSlot == 52) {
+                            // Update die Navigationsscheiben erst, wenn alle Items hinzugefügt wurden
+                            updateNavigationPanes(inventory);
+
+                            // Automatisch zur nächsten Seite wechseln, wenn es mehr Seiten gibt
+                            if (currentPage < maxPages) {
+                                Bukkit.getScheduler().runTaskLater(instance, () -> switchPagesAnimated(inventory, teamName, position, true), 10);
+                            }
+                        }
+                    }, delay);
+                    slotIndex++;
+                    delay += 10;
+                    break;
+                }
+                slotIndex++;
+            }
+            if (slotIndex == -1) break;
+        }
+        if (!moreThanOnePage)
+            Bukkit.getScheduler().runTaskLater(instance, () -> presentInventoryHolder(inventory, teamName, position), 10+delay); // 0,5 Sekunden Delay
+
+        return inventory;
+    }
+
     private Inventory createInventoryWithoutAnimation(List<CompletedTask> completedTaskList, Player player) {
         Inventory inventory = Bukkit.createInventory(player, 9 * 6, Component.text("Geschaffte Aufgaben"));
 
@@ -152,6 +225,31 @@ public class ResultInventoryManager {
             }
             if (slotIndex == -1) break;
 }
+        updateNavigationPanes(inventory);
+
+        return inventory;
+    }
+
+    private Inventory createInventoryWithoutAnimation(List<CompletedTeamTask> completedTeamTaskList, String teamName) {
+        Player player = Bukkit.getPlayer(UUID.randomUUID());
+        Inventory inventory = Bukkit.createInventory(player, 9 * 6, Component.text("Geschaffte Aufgaben"));
+
+        fillDefaultGlassPanes(inventory);
+
+        int slotIndex = 9;
+        for (CompletedTeamTask completedTeamTask : completedTeamTaskList) {
+            while (slotIndex < inventory.getSize()) {
+                if (slotIndex % 9 != 0 && (slotIndex + 1) % 9 != 0) {
+                    final int currentSlot = slotIndex;
+                    addItemToInventory(inventory, completedTeamTask, currentSlot);
+
+                    slotIndex++;
+                    break;
+                }
+                slotIndex++;
+            }
+            if (slotIndex == -1) break;
+        }
         updateNavigationPanes(inventory);
 
         return inventory;
@@ -232,6 +330,54 @@ public class ResultInventoryManager {
 
     }
 
+    private void updateInventoryWithCurrentPageAnimated(Inventory inventory, String teamName, int position) {
+        inventory.clear();
+        fillDefaultGlassPanes(inventory);
+        updateRedNavPane(inventory);
+
+        List<CompletedTeamTask> completedTeamTasks = taskManager.getCompletedTeamTaskList(teamName);
+
+        int startIndex = (currentPage - 1) * 35;
+        int endIndex = Math.min(startIndex + 35, completedTeamTasks.size());
+        List<CompletedTeamTask> currentPageTasks = completedTeamTasks.subList(startIndex, endIndex);
+
+        int delay = 0;
+        int slotIndex = 9;
+        for (CompletedTeamTask completedTeamTask : currentPageTasks) {
+            while (slotIndex < inventory.getSize()) {
+                if (slotIndex % 9 != 0 && (slotIndex + 1) % 9 != 0) {
+                    final int currentSlot = slotIndex;
+
+                    Bukkit.getScheduler().runTaskLater(instance, () -> {
+                        addItemToInventory(inventory, completedTeamTask, currentSlot);
+                        playItemPickupSoundForAllPlayers();
+
+                        int nextSlot = getNextAvailableSlot(inventory, currentSlot);
+
+                        // Überprüfen, ob das Inventar voll ist
+                        if (nextSlot == 52) {
+                            // Update die Navigationsscheiben erst, wenn alle Items hinzugefügt wurden
+                            updateNavigationPanes(inventory);
+
+                            // Automatisch zur nächsten Seite wechseln, wenn es mehr Seiten gibt
+                            if (currentPage < maxPages) {
+                                Bukkit.getScheduler().runTaskLater(instance, () -> switchPagesAnimated(inventory, teamName, position, true), 10);
+                            }
+                        }
+                    }, delay);
+                    slotIndex++;
+                    delay += 10;
+                    break;
+                }
+                slotIndex++;
+            }
+        }
+        if (currentPage == maxPages) {
+            Bukkit.getScheduler().runTaskLater(instance, () -> presentInventoryHolder(inventory, teamName, position), 10+delay); // 0,5 Sekunden Delay
+        }
+
+    }
+
     private void fillDefaultGlassPanes(Inventory inventory) {
         ItemStack whiteGlassPane = createGlassPane(Material.WHITE_STAINED_GLASS_PANE);
         ItemStack grayGlassPane = createGlassPane(Material.GRAY_STAINED_GLASS_PANE);
@@ -304,6 +450,24 @@ public class ResultInventoryManager {
         inventory.setItem(slot, itemStack);
     }
 
+    private void addItemToInventory(Inventory inventory, CompletedTeamTask completedTeamTask, int slot) {
+        ItemStack itemStack = new ItemStack(completedTeamTask.material());
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        List<Component> lore = new ArrayList<>();
+
+        lore.add(Component.text(" "));
+        lore.add(Component.text(gameCountdown.formatTime(completedTeamTask.seconds())).color(NamedTextColor.GOLD));
+
+        if (completedTeamTask.usedJoker())
+            lore.add(Component.text("[JOKER]").color(NamedTextColor.RED).decorate(TextDecoration.BOLD));
+
+        itemMeta.lore(lore);
+        itemStack.setItemMeta(itemMeta);
+
+        inventory.setItem(slot, itemStack);
+    }
+
     private int getNextAvailableSlot(Inventory inventory, int startIndex) {
         for (int i = startIndex; i < inventory.getSize(); i++) {
             if (i % 9 != 0 && (i + 1) % 9 != 0) {
@@ -356,6 +520,44 @@ public class ResultInventoryManager {
         }
         alreadyUsed = true;
     }
+
+    private void presentInventoryHolder(Inventory inventory, String teamName, int position){
+        inventory.close();
+        inAnimation = false;
+        if (alreadyUsed)
+            return;
+
+
+        Component posTXT = Component.text(position);
+        Component playerTXT = Component.text(". " + teamName);
+        Component separatorTXT = Component.text(" - ");
+        Component pointsTXT = Component.text(logic.getTeamPoints(teamName)).color(NamedTextColor.WHITE);
+        Component overviewClickable = Component.text(" [Übersicht]").color(NamedTextColor.GREEN).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/result " + teamName + " no"));
+
+        for (Player players : Bukkit.getOnlinePlayers()) {
+            switch (position) {
+                case 3:
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.DARK_GRAY).append(Component.text("." + teamName).color(NamedTextColor.WHITE)), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.sendMessage(posTXT.color(NamedTextColor.DARK_GRAY).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
+                    break;
+                case 2:
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GRAY).append(Component.text("." + teamName).color(NamedTextColor.WHITE)), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.sendMessage(posTXT.color(NamedTextColor.GRAY).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
+                    break;
+                case 1:
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GOLD).append(Component.text("." + teamName).color(NamedTextColor.WHITE)), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.sendMessage(posTXT.color(NamedTextColor.GOLD).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
+                    break;
+                default:
+                    players.showTitle(Title.title(Component.text(position + "." + teamName), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.sendMessage(posTXT.append(playerTXT).append(separatorTXT).append(pointsTXT).append(overviewClickable));
+                    break;
+            }
+            players.playSound(players, Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+        }
+        alreadyUsed = true;
+    }
+
     public boolean isInAnimation() {
         return inAnimation;
     }

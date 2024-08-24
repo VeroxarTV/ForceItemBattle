@@ -1,6 +1,7 @@
 package de.veroxar.forceItemBattle.commands;
 
 import de.veroxar.forceItemBattle.ForceItemBattle;
+import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.messages.Messages;
 import de.veroxar.forceItemBattle.util.TeamInventoryManager;
@@ -16,10 +17,16 @@ public class TeamCommand implements CommandExecutor {
 
     Data data = ForceItemBattle.getData();
     TeamInventoryManager teamInventoryManager = data.getTeamInventoryManager();
+    GameCountdown gameCountdown = data.getGameCountdown();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (sender instanceof Player player) {
+
+            if (gameCountdown.isRunning()) {
+                player.sendMessage(Component.text("Dieser Befehl ist nur außerhalb des Spiels nutzbar!").color(NamedTextColor.RED));
+                return true;
+            }
 
             if (player.hasPermission("forceItemBattle.menu.team")) {
                 teamInventoryManager.openTeamInv(player);

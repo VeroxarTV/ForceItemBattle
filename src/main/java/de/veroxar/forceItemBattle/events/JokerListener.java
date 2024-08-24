@@ -5,7 +5,9 @@ import de.veroxar.forceItemBattle.config.Configuration;
 import de.veroxar.forceItemBattle.countdown.GameCountdown;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
+import de.veroxar.forceItemBattle.team.TeamManager;
 import de.veroxar.forceItemBattle.util.Logic;
+import de.veroxar.forceItemBattle.util.TeamInventoryManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,6 +26,9 @@ public class JokerListener implements Listener {
     TaskManager taskManager = data.getTaskManager();
     GameCountdown gameCountdown = data.getGameCountdown();
     Configuration playersConfig = data.getConfigs().getPlayersConfig();
+    Configuration teamsConfig = data.getConfigs().getTeamsConfig();
+    TeamInventoryManager inventoryManager = data.getTeamInventoryManager();
+    TeamManager teamManager = data.getTeamManager();
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
@@ -41,6 +46,23 @@ public class JokerListener implements Listener {
                 if (item.getAmount() > 0) {
                     item.setAmount(item.getAmount() - 1);
                     player.getInventory().setItemInMainHand(item);
+                }
+
+                if (inventoryManager.isTeamMode()) {
+                    String teamName = teamManager.getTeamName(player);
+                    Material currentTaskItem = taskManager.getTeamTask(teamName).getMaterial();
+                    HashMap<Integer, ItemStack> failed = player.getInventory().addItem(ItemStack.of(currentTaskItem));
+                    if (!failed.isEmpty()) {
+                        player.getWorld().dropItem(player.getLocation(), ItemStack.of(currentTaskItem));
+                        failed.clear();
+                    }
+                    logic.completedTeamTask(teamName, true);
+                    int jokersLeft = teamsConfig.toFileConfiguration().getInt(teamName + ".jokersLeft");
+                    int newJokersLeft = jokersLeft - 1;
+                    teamsConfig.toFileConfiguration().set(teamName + ".jokersLeft", newJokersLeft);
+                    teamsConfig.saveConfiguration();
+                    event.setCancelled(true);
+                    return;
                 }
 
                 Material currentTaskItem = taskManager.getTask(player.getUniqueId()).getMaterial();
