@@ -10,6 +10,7 @@ import de.veroxar.forceItemBattle.util.ResultInventoryManager;
 import de.veroxar.forceItemBattle.util.TeamInventoryManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -36,26 +37,27 @@ public class ResultCommand implements CommandExecutor {
             return true;
         }
 
-        if (args.length == 0) {
+        if (args.length == 0 && player.hasPermission("forceItemBattle.commands.result")) {
             if (gameCountdown.isFinished()) {
 
                 if (inventoryManager.isTeamMode()) {
 
-                    // Hole die Spielerplatzierungen
+                    // Hole die Teamplatzierungen
                     List<Map.Entry<String, Integer>> teamPlacements = logic.getTeamPlacement();
 
-                    // Sortiere die Spieler nach Punkten in absteigender Reihenfolge
+                    // Sortiere die Teams nach Punkten in absteigender Reihenfolge
                     List<Map.Entry<String, Integer>> sortedPlacements = teamPlacements.stream()
                             .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                             .toList();
 
-                    // Erhöhe den Index und hole die nächste UUID
+                    // Erhöhe den Index und hole das nächste Team
                     currentIndex++;
                     if (currentIndex >= sortedPlacements.size()) {
-                        player.sendMessage(Messages.PREFIX.append(Component.text("Keine weiteren Spielerplätze verfügbar.").color(NamedTextColor.GRAY)));
+                        player.sendMessage(Messages.PREFIX.append(Component.text("Keine weiteren Teamplätze verfügbar.").color(NamedTextColor.GRAY)));
+                        return true;
                     }
 
-                    // Hole die UUID der aktuellen Position
+                    // Hole das aktuelle team der aktuellen Position
                     String currentTeam = sortedPlacements.get(sortedPlacements.size() - 1 - currentIndex).getKey();
 
                     int pos = sortedPlacements.size() - currentIndex;
@@ -83,6 +85,7 @@ public class ResultCommand implements CommandExecutor {
                 currentIndex++;
                 if (currentIndex >= sortedPlacements.size()) {
                     player.sendMessage(Messages.PREFIX.append(Component.text("Keine weiteren Spielerplätze verfügbar.").color(NamedTextColor.GRAY)));
+                    return true;
                 }
 
                 // Hole die UUID der aktuellen Position
@@ -116,7 +119,13 @@ public class ResultCommand implements CommandExecutor {
                 player.openInventory(resultInventoryManager.createResultInvWithoutAnimation(target));
             }
         } else {
-            sendUsage(sender);
+            if (player.hasPermission("forceItemBattle.commands.result")) {
+                sendUsage(sender);
+            } else {
+                player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize(
+                        "§cNur ein Admin kann diesen Befehl ausführen!")));
+            }
+            return true;
         }
 
         return true;

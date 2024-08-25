@@ -14,11 +14,13 @@ public class BackpackManager {
     Data data = ForceItemBattle.getData();
     Configs configs = data.getConfigs();
     private final Map<UUID, Backpack> map;
+    private final Map<String, TeamBackpack> teamMap;
 
     public BackpackManager() {
         map = new HashMap<>();
-
-        load();
+        teamMap = new HashMap<>();
+        loadBackpack();
+        loadTeamBackpack();
     }
 
     public Backpack getBackpack(UUID uuid) {
@@ -32,7 +34,18 @@ public class BackpackManager {
         return backpack;
     }
 
-    private void load() {
+    public TeamBackpack getTeamBackpack(String teamName) {
+
+        if(teamMap.containsKey(teamName)) {
+            return teamMap.get(teamName);
+        }
+
+        TeamBackpack teamBackpack = new TeamBackpack(teamName);
+        teamMap.put(teamName, teamBackpack);
+        return teamBackpack;
+    }
+
+    private void loadBackpack() {
         FileConfiguration backpackConfig = configs.getBackpackConfig().toFileConfiguration();
         List<String> uuids = backpackConfig.getStringList("backpacks");
 
@@ -49,7 +62,7 @@ public class BackpackManager {
         });
     }
 
-    public void save(){
+    public void saveBackpack(){
 
         List<String> uuids = new ArrayList<>();
 
@@ -68,8 +81,38 @@ public class BackpackManager {
         Configuration backpackConfig = configs.getBackpackConfig();
         backpackConfig.toFileConfiguration().set("backpack", null);
         backpackConfig.toFileConfiguration().set("backpacks", null);
+        backpackConfig.toFileConfiguration().set("teamNames", null);
         backpackConfig.saveConfiguration();
         map.clear();
-        load();
+        teamMap.clear();
+        loadBackpack();
+        loadTeamBackpack();
     }
+
+    private void loadTeamBackpack() {
+        FileConfiguration backpackConfig = configs.getBackpackConfig().toFileConfiguration();
+        List<String> teamNames = backpackConfig.getStringList("teamNames");
+
+        teamNames.forEach(teamName ->{
+            String base64 = backpackConfig.getString("backpack." + teamName);
+
+            try {
+                teamMap.put(teamName, new TeamBackpack(teamName, base64));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public void saveTeamBackpack(){
+
+        List<String> teamNames = new ArrayList<>(teamMap.keySet());
+
+        Configuration backpackConfig = configs.getBackpackConfig();
+
+        backpackConfig.toFileConfiguration().set("teamNames", teamNames);
+        teamMap.forEach((teamName, teamBackpack) -> backpackConfig.toFileConfiguration().set("backpack." + teamName, teamBackpack.toBase64()));
+        backpackConfig.saveConfiguration();
+    }
+
 }

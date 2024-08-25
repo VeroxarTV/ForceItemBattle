@@ -11,6 +11,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,10 @@ public class TeamManager {
     private final Configuration playersConfig = data.getConfigs().getPlayersConfig();
     private final FileConfiguration teamsFileConfig = teamsConfig.toFileConfiguration();
     private final FileConfiguration playersFileConfig = playersConfig.toFileConfiguration();
+    private final InventoryHolderBlue inventoryHolderBlue = new InventoryHolderBlue();
+    private final InventoryHolderRed inventoryHolderRed = new InventoryHolderRed();
+    private final InventoryHolderYellow inventoryHolderYellow = new InventoryHolderYellow();
+    private final InventoryHolderGreen inventoryHolderGreen = new InventoryHolderGreen();
     private UUID uuid;
     private final ArrayList<String> activeTeams = new ArrayList<>();
 
@@ -64,25 +70,22 @@ public class TeamManager {
        }
     }
 
-    public boolean quitTeam (Player player, String teamName) {
+    public void quitTeam (Player player, String teamName) {
         uuid = player.getUniqueId();
         if (teamName == null)
-            return false;
+            return;
         Component teamNameComponent = Component.text(teamName).color(NamedTextColor.GOLD);
         if (isValidTeam(teamName)) {
             if (isInTeam(player, teamName)) {
                 playersFileConfig.set(uuid + ".team", null);
                 playersConfig.saveConfiguration();
-                return true;
             } else  {
                 player.sendMessage(Messages.PREFIX.append(Component.text("Spieler nicht in Team: ").color(NamedTextColor.RED)
                         .append(teamNameComponent)));
-                return false;
             }
         } else {
             player.sendMessage(Messages.PREFIX.append(Component.text("Unbekanntes Team: ").color(NamedTextColor.RED)
                     .append(teamNameComponent)));
-            return false;
         }
     }
 
@@ -132,5 +135,28 @@ public class TeamManager {
            }
         }
         return playerList;
+    }
+
+    public Inventory getTeamInventory(String teamName) {
+        return switch (teamName.toLowerCase()) {
+            case "blue" -> inventoryHolderBlue.getInventory();
+            case "red" -> inventoryHolderRed.getInventory();
+            case "yellow" -> inventoryHolderYellow.getInventory();
+            case "green" -> inventoryHolderGreen.getInventory();
+            default -> null;
+        };
+    }
+
+    public String getTeamNameFromHolder(InventoryHolder holder) {
+        if (holder instanceof InventoryHolderBlue) {
+            return "BLUE";
+        } else if (holder instanceof  InventoryHolderRed) {
+            return "RED";
+        } else if(holder instanceof InventoryHolderYellow) {
+            return "YELLOW";
+        } else if (holder instanceof InventoryHolderGreen) {
+            return "GREEN";
+        }
+        return null;
     }
 }

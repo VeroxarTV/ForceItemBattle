@@ -6,6 +6,7 @@ import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.tasks.CompletedTask;
 import de.veroxar.forceItemBattle.tasks.CompletedTeamTask;
 import de.veroxar.forceItemBattle.tasks.TaskManager;
+import de.veroxar.forceItemBattle.team.TeamManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -20,7 +21,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class ResultInventoryManager {
 
@@ -29,6 +32,7 @@ public class ResultInventoryManager {
     private final TaskManager taskManager = data.getTaskManager();
     private final GameCountdown gameCountdown = data.getGameCountdown();
     private final Logic logic = data.getLogic();
+    private final TeamManager teamManager = data.getTeamManager();
     private int currentPage = 1;
     private int maxPages = 1;
     private boolean moreThanOnePage = false;
@@ -102,6 +106,15 @@ public class ResultInventoryManager {
             currentPage--;
         }
         updateInventoryWithCurrentPage(inventory);
+    }
+
+    public void switchPagesTeamMode(Inventory inventory, boolean nextPage) {
+        if (nextPage && currentPage < maxPages) {
+            currentPage++;
+        } else if (!nextPage && currentPage > 1) {
+            currentPage--;
+        }
+        updateInventoryWithCurrentPageTeamMode(inventory);
     }
 
     public void switchPagesAnimated(Inventory inventory, Player player, Integer position, boolean nextPage) {
@@ -231,9 +244,7 @@ public class ResultInventoryManager {
     }
 
     private Inventory createInventoryWithoutAnimation(List<CompletedTeamTask> completedTeamTaskList, String teamName) {
-        Player player = Bukkit.getPlayer(UUID.randomUUID());
-        Inventory inventory = Bukkit.createInventory(player, 9 * 6, Component.text("Geschaffte Aufgaben"));
-
+        Inventory inventory = teamManager.getTeamInventory(teamName);
         fillDefaultGlassPanes(inventory);
 
         int slotIndex = 9;
@@ -272,6 +283,32 @@ public class ResultInventoryManager {
             while (slotIndex < inventory.getSize()) {
                 if (slotIndex % 9 != 0 && (slotIndex + 1) % 9 != 0) {
                     addItemToInventory(inventory, completedTask, slotIndex);
+                    slotIndex++;
+                    break;
+                }
+                slotIndex++;
+            }
+        }
+
+        updateNavigationPanes(inventory);
+    }
+
+    private void updateInventoryWithCurrentPageTeamMode(Inventory inventory) {
+        inventory.clear();
+        String teamName = teamManager.getTeamNameFromHolder(inventory.getHolder());
+        fillDefaultGlassPanes(inventory);
+        List<CompletedTeamTask> completedTeamTasks = taskManager.getCompletedTeamTaskList(teamName);
+
+        int startIndex = (currentPage - 1) * 35;
+        int endIndex = Math.min(startIndex + 35, completedTeamTasks.size());
+        List<CompletedTeamTask> currentPageTasks = completedTeamTasks.subList(startIndex, endIndex);
+
+        int slotIndex = 9;
+        for (CompletedTeamTask completedTeamTask : currentPageTasks) {
+            // Überspringe Slots an den Rändern (linke und rechte Spalte)
+            while (slotIndex < inventory.getSize()) {
+                if (slotIndex % 9 != 0 && (slotIndex + 1) % 9 != 0) {
+                    addItemToInventory(inventory, completedTeamTask, slotIndex);
                     slotIndex++;
                     break;
                 }
@@ -526,10 +563,16 @@ public class ResultInventoryManager {
         inAnimation = false;
         if (alreadyUsed)
             return;
-
+        String teamNameDisplay = "NULL";
+        switch (teamName.toLowerCase()) {
+            case "blue" -> teamNameDisplay = "Blau";
+            case "red" -> teamNameDisplay = "Rot";
+            case "yellow" -> teamNameDisplay = "Gelb";
+            case "green" -> teamNameDisplay = "Grün";
+        }
 
         Component posTXT = Component.text(position);
-        Component playerTXT = Component.text(". " + teamName);
+        Component teamTXT = Component.text(". " + teamNameDisplay);
         Component separatorTXT = Component.text(" - ");
         Component pointsTXT = Component.text(logic.getTeamPoints(teamName)).color(NamedTextColor.WHITE);
         Component overviewClickable = Component.text(" [Übersicht]").color(NamedTextColor.GREEN).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/result " + teamName + " no"));
@@ -537,20 +580,20 @@ public class ResultInventoryManager {
         for (Player players : Bukkit.getOnlinePlayers()) {
             switch (position) {
                 case 3:
-                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.DARK_GRAY).append(Component.text("." + teamName).color(NamedTextColor.WHITE)), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
-                    players.sendMessage(posTXT.color(NamedTextColor.DARK_GRAY).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.DARK_GRAY).append(Component.text("." + teamNameDisplay).color(NamedTextColor.WHITE)), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.sendMessage(posTXT.color(NamedTextColor.DARK_GRAY).append(teamTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 case 2:
-                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GRAY).append(Component.text("." + teamName).color(NamedTextColor.WHITE)), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
-                    players.sendMessage(posTXT.color(NamedTextColor.GRAY).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GRAY).append(Component.text("." + teamNameDisplay).color(NamedTextColor.WHITE)), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.sendMessage(posTXT.color(NamedTextColor.GRAY).append(teamTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 case 1:
-                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GOLD).append(Component.text("." + teamName).color(NamedTextColor.WHITE)), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
-                    players.sendMessage(posTXT.color(NamedTextColor.GOLD).append(playerTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GOLD).append(Component.text("." + teamNameDisplay).color(NamedTextColor.WHITE)), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.sendMessage(posTXT.color(NamedTextColor.GOLD).append(teamTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 default:
-                    players.showTitle(Title.title(Component.text(position + "." + teamName), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
-                    players.sendMessage(posTXT.append(playerTXT).append(separatorTXT).append(pointsTXT).append(overviewClickable));
+                    players.showTitle(Title.title(Component.text(position + "." + teamNameDisplay), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.sendMessage(posTXT.append(teamTXT).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
             }
             players.playSound(players, Sound.ENTITY_PLAYER_LEVELUP, 1, 1);

@@ -1,36 +1,26 @@
 package de.veroxar.forceItemBattle.util;
 
 import org.bukkit.Bukkit;
-import org.bukkit.World;
+import org.codehaus.plexus.util.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class WorldManager {
 
-    public boolean deleteWorld(String worldName) {
-        World world = Bukkit.getWorld(worldName);
-        if (world != null) {
-            // Entlade die Welt
-            Bukkit.unloadWorld(world, false);
-        }
-
-        // Hole das Verzeichnis der Welt
-        File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
-
-        // Lösche die Welt (Verzeichnis)
-        return deleteDirectory(worldFolder);
-    }
-
-    private boolean deleteDirectory(File file) {
-        if (file.isDirectory()) {
-            File[] files = file.listFiles();
-            if (files != null) {
-                for (File child : files) {
-                    deleteDirectory(child);
-                }
+    public void deleteWorld(String worldName) {
+        ArrayList<String> worlds = new ArrayList<>();
+        worlds.add(worldName);
+        worlds.add(worldName + "_nether");
+        worlds.add(worldName + "_the_end");
+        for (String world : worlds) {
+            try {
+                FileUtils.cleanDirectory(new File(world));
+                new File(Bukkit.getWorldContainer() + "/" + world + "/playerdata").mkdirs();
+            } catch (IOException e) {
+                Bukkit.getConsoleSender().sendMessage("§cDie Welt konnte nicht gelöscht werden");
             }
         }
-        return file.delete();
     }
-
 }

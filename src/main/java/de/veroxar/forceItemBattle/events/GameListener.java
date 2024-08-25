@@ -41,6 +41,9 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onEntityPickupItem(EntityPickupItemEvent event) {
+        if (!gameCountdown.isRunning() || gameCountdown.isFinished()) {
+            return;
+        }
         if (event.getEntity() instanceof Player player) {
             if (teamInventoryManager.isTeamMode()) {
                 String teamName = teamManager.getTeamName(player);
@@ -67,9 +70,19 @@ public class GameListener implements Listener {
                         if (event.getCurrentItem().hasItemMeta()) {
                             if (event.getCurrentItem().getItemMeta().hasDisplayName()) {
                                 if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Nächste Seite").color(NamedTextColor.GREEN))) {
+                                    if (teamInventoryManager.isTeamMode()) {
+                                        resultInventoryManager.switchPagesTeamMode(event.getInventory(), true);
+                                        event.setCancelled(true);
+                                        return;
+                                    }
                                     resultInventoryManager.switchPages(event.getInventory(), true);
                                     event.setCancelled(true);
                                 } else if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Vorherige Seite").color(NamedTextColor.RED))) {
+                                    if (teamInventoryManager.isTeamMode()) {
+                                        resultInventoryManager.switchPagesTeamMode(event.getInventory(), false);
+                                        event.setCancelled(true);
+                                        return;
+                                    }
                                     resultInventoryManager.switchPages(event.getInventory(), false);
                                     event.setCancelled(true);
                                 }
@@ -81,6 +94,9 @@ public class GameListener implements Listener {
             }
 
             if (event.getCurrentItem() != null) {
+                if (!gameCountdown.isRunning() || gameCountdown.isFinished()) {
+                    return;
+                }
                 if (teamInventoryManager.isTeamMode()) {
                     String teamName = teamManager.getTeamName(player);
                     if (event.getCurrentItem().getType().equals(taskManager.getTeamTask(teamName).getMaterial())) {
@@ -90,14 +106,16 @@ public class GameListener implements Listener {
                 }
                 if (event.getCurrentItem().getType().equals(taskManager.getTask(uuid).getMaterial())) {
                     logic.completedTask(player, false);
-            }
-
+                }
             }
         }
     }
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
+        if (!gameCountdown.isRunning() || gameCountdown.isFinished()) {
+            return;
+        }
         if (event.getWhoClicked() instanceof Player player) {
             if (teamInventoryManager.isTeamMode()) {
                 String teamName = teamManager.getTeamName(player);
@@ -122,6 +140,10 @@ public class GameListener implements Listener {
         if (!gameCountdown.isRunning())
             return;
         logic.showBlockAbovePlayer(event.getPlayer(), taskManager.getTask(event.getPlayer().getUniqueId()).getMaterial());
+        if (teamInventoryManager.isTeamMode()) {
+            logic.giveJokerToTeam(event.getPlayer());
+            return;
+        }
         logic.giveJokerToPlayer(event.getPlayer());
     }
 
@@ -142,17 +164,21 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onEntityAddToWorld(EntityAddToWorldEvent event) {
-        if (event.getEntity() instanceof  Player player && logic.hasTask(player)) {
-            int delay = 1;
-            Bukkit.getScheduler().runTaskLater(data.getInstance(), () -> logic.showBlockAbovePlayer(player, taskManager.getTask(player.getUniqueId()).getMaterial()), delay);
+        if (gameCountdown.isRunning()) {
+            if (event.getEntity() instanceof  Player player && logic.hasTask(player)) {
+                int delay = 1;
+                Bukkit.getScheduler().runTaskLater(data.getInstance(), () -> logic.showBlockAbovePlayer(player, taskManager.getTask(player.getUniqueId()).getMaterial()), delay);
+            }
         }
     }
 
 
     @EventHandler
     public void onEntityRemoveFromWorld(EntityRemoveFromWorldEvent event) {
-        if (event.getEntity() instanceof  Player player && logic.hasTask(player))
-            logic.removeBlockAbovePlayer(player);
+        if (gameCountdown.isRunning()) {
+            if (event.getEntity() instanceof  Player player && logic.hasTask(player))
+                logic.removeBlockAbovePlayer(player);
+        }
     }
 
     @EventHandler

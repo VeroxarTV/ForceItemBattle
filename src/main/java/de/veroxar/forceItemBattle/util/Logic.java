@@ -374,7 +374,6 @@ public class Logic {
     }
 
     public void giveJokers() {
-
         int amount = instance.getConfig().getInt("joker");
         if (amount <= 0)
             amount = 5;
@@ -405,6 +404,44 @@ public class Logic {
         }
     }
 
+    //TODO: Doesn't work at the Moment, sometimes nobody receives jokers
+    public void giveTeamJokers() {
+        Random random = new Random();
+        int amount = instance.getConfig().getInt("joker");
+        if (amount <= 0)
+            amount = 5;
+
+        for (String team : teamManager.getActiveTeams()) {
+            if (teamManager.getPlayersInTeam(team).isEmpty()) {
+                continue;
+            }
+
+            if (teamsConfig.toFileConfiguration().contains(team + ".jokersLeft")) {
+                amount = teamsConfig.toFileConfiguration().getInt(team + ".jokersLeft");
+            }
+
+            if (amount <= 0)
+                return;
+
+            ItemStack joker = new ItemStack(Material.BARRIER, amount);
+            ItemMeta jokerMeta = joker.getItemMeta();
+            jokerMeta.displayName(Component.text("Joker").color(NamedTextColor.GOLD));
+            joker.setItemMeta(jokerMeta);
+
+            backpackManager.getTeamBackpack(team).getInventory().remove(Material.BARRIER);
+
+            List<Player> players = teamManager.getPlayersInTeam(team);
+            Player player = players.get(random.nextInt(players.size()));
+
+            if (player.getInventory().contains(Material.BARRIER))
+                player.getInventory().remove(Material.BARRIER);
+            player.getInventory().addItem(joker);
+
+            teamsConfig.toFileConfiguration().set(team + ".jokersLeft", amount);
+            teamsConfig.saveConfiguration();
+        }
+    }
+
     public void giveJokerToPlayer(Player player) {
         UUID uuid = player.getUniqueId();
         int amount = instance.getConfig().getInt("joker");
@@ -431,6 +468,34 @@ public class Logic {
         playersConfig.saveConfiguration();
     }
 
+    public void giveJokerToTeam(Player player) {
+        String teamName = teamManager.getTeamName(player);
+        int amount = instance.getConfig().getInt("joker");
+
+        if (amount <= 0)
+            amount = 5;
+        if (teamsConfig.toFileConfiguration().contains(teamName + ".jokersLeft")) {
+            amount = playersConfig.toFileConfiguration().getInt(teamName + ".jokersLeft");
+            if (amount == 0)
+                return;
+        }
+        ItemStack joker = new ItemStack(Material.BARRIER, amount);
+        ItemMeta jokerMeta = joker.getItemMeta();
+        jokerMeta.displayName(Component.text("Joker").color(NamedTextColor.GOLD));
+        joker.setItemMeta(jokerMeta);
+
+        backpackManager.getTeamBackpack(teamName).getInventory().remove(Material.BARRIER);
+
+        for (Player teamPlayer : teamManager.getPlayersInTeam(teamName)) {
+            if (teamPlayer.getInventory().contains(Material.BARRIER))
+                teamPlayer.getInventory().remove(Material.BARRIER);
+        }
+
+        player.getInventory().addItem(joker);
+        teamsConfig.toFileConfiguration().set(teamName + ".jokersLeft", amount);
+        teamsConfig.saveConfiguration();
+    }
+
     public List<Map.Entry<UUID, Integer>> getPlayerPlacement() {
         Map<UUID, Integer> playerPoints = new HashMap<>();
 
@@ -450,10 +515,10 @@ public class Logic {
         for (String activeTeam : teamManager.getActiveTeams()) {
             int points = getTeamPoints(activeTeam);
             if (points > 0) {
-                teamPointsMap.put(activeTeam, points);
+                teamPoints.put(activeTeam, points);
             }
         }
 
-        return new ArrayList<>(teamPointsMap.entrySet());
+        return new ArrayList<>(teamPoints.entrySet());
     }
 }

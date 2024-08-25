@@ -14,12 +14,12 @@ public class DefaultTeams {
 
     public void createDefaultTeams() {
         teamManager.createTeam(
-                "RED", "§8[§cRED§8]§r ", NamedTextColor.RED, false);
+                "RED", "§8[§cROT§8]§r ", NamedTextColor.RED, false);
         teamManager.createTeam(
-                "BLUE", "§8[§9BLUE§8]§r ", NamedTextColor.BLUE, false);
+                "BLUE", "§8[§9BLAU§8]§r ", NamedTextColor.BLUE, false);
         teamManager.createTeam(
-                "YELLOW", "§8[§eYELLOW§8]§r ", NamedTextColor.YELLOW, false);
+                "YELLOW", "§8[§eGELB§8]§r ", NamedTextColor.YELLOW, false);
         teamManager.createTeam(
-                "GREEN", "§8[§aGREEN§8]§r ", NamedTextColor.GREEN, false);
+                "GREEN", "§8[§aGRÜN§8]§r ", NamedTextColor.GREEN, false);
     }
 }

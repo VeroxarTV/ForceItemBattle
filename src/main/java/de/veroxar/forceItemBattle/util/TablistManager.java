@@ -3,7 +3,6 @@ package de.veroxar.forceItemBattle.util;
 import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.team.TeamManager;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -35,10 +34,6 @@ public class TablistManager {
         Bukkit.getOnlinePlayers().forEach(this::setPlayerTeams);
     }
 
-    public void clearAllPlayerTeams() {
-        Bukkit.getOnlinePlayers().forEach(this::clearPlayerTeams);
-    }
-
     public void setPlayerTeams(Player player) {
         scoreboard = player.getScoreboard();
 
@@ -60,22 +55,11 @@ public class TablistManager {
                 if (teamManager.isInTeam(target, teamName)) {
                     team.addPlayer(target);
                     player.setScoreboard(scoreboard);
+                } else if (team.hasPlayer(target)) {
+                    team.removePlayer(target);
+                    player.setScoreboard(scoreboard);
                 }
             }
-        }
-    }
-
-    public void clearPlayerTeams(Player player) {
-        scoreboard = player.getScoreboard();
-        if (scoreboard.getTeam(player.getUniqueId().toString()) == null) {
-            team = scoreboard.registerNewTeam(player.getUniqueId().toString());
-        } else {
-            team = scoreboard.getTeam(player.getUniqueId().toString());
-            team.prefix(Component.text(""));
-            team.color(NamedTextColor.WHITE);
-            team.setAllowFriendlyFire(true);
-            team.addPlayer(player);
-            player.setScoreboard(scoreboard);
         }
     }
 }

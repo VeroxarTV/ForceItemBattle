@@ -30,6 +30,7 @@ public class GameCountdown {
     private boolean running;
     private boolean finished;
     private int time;
+    private boolean started;
 
     public GameCountdown() {
         if (countdownConfig.toFileConfiguration().getInt(".countdown") != 0) {
@@ -41,7 +42,12 @@ public class GameCountdown {
         }
         this.running = false;
         this.finished = false;
+        this.started = false;
         run();
+    }
+
+    public boolean isStarted() {
+        return started;
     }
 
     public boolean isRunning() {
@@ -66,6 +72,10 @@ public class GameCountdown {
 
     public void setTime(int time) {
         this.time = time;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
     }
 
     public String formatTime(long totalSeconds) {

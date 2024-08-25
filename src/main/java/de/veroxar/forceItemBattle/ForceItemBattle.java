@@ -13,8 +13,6 @@ import de.veroxar.forceItemBattle.tasks.TaskManager;
 import de.veroxar.forceItemBattle.team.DefaultTeams;
 import de.veroxar.forceItemBattle.team.TeamManager;
 import de.veroxar.forceItemBattle.util.*;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -37,14 +35,17 @@ public final class ForceItemBattle extends JavaPlugin {
     private final Plugin instance = this;
     private final PluginManager manager = instance.getServer().getPluginManager();
     private final WorldManager worldManager = new WorldManager();
+    private final String world = getServerPropertiesValue("level-name");
 
     @Override
     public void onLoad() {
-        disableSpawnProtection();
+        editServerProperties("spawn-protection", "0");
+        editServerProperties("difficulty", "easy");
     }
 
     @Override
     public void onEnable() {
+        worldManager.deleteWorld(world);
         initializeData();
         initializeDefaultTeams();
         loadCommands();
@@ -53,7 +54,7 @@ public final class ForceItemBattle extends JavaPlugin {
         data.getTablistManager().setAllPlayerTeams();
     }
 
-    private void disableSpawnProtection() {
+    private void editServerProperties(String key, String value) {
         // Pfad zur server.properties Datei
         File serverPropertiesFile = new File(getServer().getWorldContainer(), "server.properties");
 
@@ -64,18 +65,44 @@ public final class ForceItemBattle extends JavaPlugin {
             // Datei einlesen
             properties.load(in);
 
-            // Spawn-Protection deaktivieren
-            properties.setProperty("spawn-protection", "0");
+            // Property ändern
+            properties.setProperty(key, value);
 
             // Änderungen speichern
             try (FileOutputStream out = new FileOutputStream(serverPropertiesFile)) {
                 properties.store(out, null);
-                getLogger().info("Spawn-Protection wurde deaktiviert.");
+                getLogger().info(key + " wurde auf den Wert: " + value + " gesetzt!");
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private String getServerPropertiesValue(String key) {
+        // Pfad zur server.properties Datei
+        File serverPropertiesFile = new File(getServer().getWorldContainer(), "server.properties");
+
+        // Properties-Objekt erstellen
+        Properties properties = new Properties();
+
+        try (FileInputStream in = new FileInputStream(serverPropertiesFile)) {
+            // Datei einlesen
+            properties.load(in);
+
+            // Property ändern
+            String value = properties.getProperty(key);
+
+            // Änderungen speichern
+            try (FileOutputStream out = new FileOutputStream(serverPropertiesFile)) {
+                properties.store(out, null);
+                getLogger().info("Der Wert von " + key + " lautet: " + value);
+            }
+            return value;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private void loadListeners(){
@@ -94,6 +121,7 @@ public final class ForceItemBattle extends JavaPlugin {
         Objects.requireNonNull(getCommand("task")).setExecutor(new SetTaskCommand());
         Objects.requireNonNull(getCommand("end")).setExecutor(new EndCommand());
         Objects.requireNonNull(getCommand("team")).setExecutor(new TeamCommand());
+        Objects.requireNonNull(getCommand("countdown")).setExecutor(new CountdownCommand());
     }
 
     private void initializeData(){
@@ -115,7 +143,8 @@ public final class ForceItemBattle extends JavaPlugin {
     }
 
     private void saveConfigs(){
-        data.getBackpackManager().save();
+        data.getBackpackManager().saveBackpack();
+        data.getBackpackManager().saveTeamBackpack();
         data.getGameCountdown().saveTime();
         data.getTaskManager().saveTeamTasks();
         data.getTaskManager().saveTasks();
@@ -128,10 +157,6 @@ public final class ForceItemBattle extends JavaPlugin {
     public void onDisable() {
         saveConfigs();
         data.getLogic().removeAllTasks();
-        for (World world : Bukkit.getWorlds()) {
-            world.getWorldFolder().delete();
-            worldManager.deleteWorld(world.getName());
-        }
     }
 
 

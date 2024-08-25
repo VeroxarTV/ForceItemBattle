@@ -45,6 +45,7 @@ public class ResetCommand implements CommandExecutor {
             logic.resetPlayersConfig();
             logic.resetTeamsConfig();
             backpackManager.clear();
+            gameCountdown.setStarted(false);
             ResultCommand.currentIndex = -1;
             if (instance.getConfig().getInt(".time") != 0) {
                 gameCountdown.setTime(instance.getConfig().getInt(".time"));
@@ -73,7 +74,7 @@ public class ResetCommand implements CommandExecutor {
                         teamManager.quitTeam(player, activeTeam);
                     }
                 }
-                tablistManager.clearAllPlayerTeams();
+                tablistManager.setAllPlayerTeams();
             }
 
             if (gameCountdown.isRunning()) {

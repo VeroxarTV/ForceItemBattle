@@ -30,9 +30,10 @@ public class StartCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
 
         if (args.length == 0) {
-            if (!(gameCountdown.isRunning())) {
+            if (!(gameCountdown.isStarted())) {
 
                 gameCountdown.setRunning(true);
+                gameCountdown.setStarted(true);
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     player.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde gestartet!").color(NamedTextColor.GREEN)));
@@ -51,9 +52,10 @@ public class StartCommand implements CommandExecutor {
                     for (String activeTeam : teamManager.getActiveTeams()) {
                         logic.newTeamTask(activeTeam);
                     }
+                    logic.giveTeamJokers();
+                } else {
+                    logic.giveJokers();
                 }
-                logic.giveJokers();
-
             } else {
                 sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde bereits gestartet!").color(NamedTextColor.RED)));
                 return true;

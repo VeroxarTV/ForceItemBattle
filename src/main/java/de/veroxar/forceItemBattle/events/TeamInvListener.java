@@ -42,9 +42,9 @@ public class TeamInvListener implements Listener {
                             player.closeInventory();
                             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                                 if (teamManager.hasTeam(onlinePlayer))
-                                    teamManager.quitTeam(onlinePlayer, teamManager.getTeamName(player));
+                                    teamManager.quitTeam(onlinePlayer, teamManager.getTeamName(onlinePlayer));
                             }
-                            tablistManager.clearAllPlayerTeams();
+                            tablistManager.setAllPlayerTeams();
                             player.playSound(player, Sound.BLOCK_PISTON_CONTRACT, 1, 1);
                             player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7Teams wurde §cdeaktiviert!")));
                         } else if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§1Blau") && event.getClick().isLeftClick() && inventoryManager.isTeamMode()) {
