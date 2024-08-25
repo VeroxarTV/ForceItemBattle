@@ -369,6 +369,7 @@ public class Logic {
 
         for (String activeTeam : teamManager.getActiveTeams()) {
             teamsConfig.toFileConfiguration().set(activeTeam + ".points", 0);
+            teamsConfig.toFileConfiguration().set(activeTeam + ".jokersLeft", instance.getConfig().getInt("joker"));
         }
         teamsConfig.saveConfiguration();
     }
@@ -404,7 +405,6 @@ public class Logic {
         }
     }
 
-    //TODO: Doesn't work at the Moment, sometimes nobody receives jokers
     public void giveTeamJokers() {
         Random random = new Random();
         int amount = instance.getConfig().getInt("joker");
@@ -433,8 +433,10 @@ public class Logic {
             List<Player> players = teamManager.getPlayersInTeam(team);
             Player player = players.get(random.nextInt(players.size()));
 
-            if (player.getInventory().contains(Material.BARRIER))
-                player.getInventory().remove(Material.BARRIER);
+            for (Player player1 : players) {
+                if (player.getInventory().contains(Material.BARRIER))
+                    player.getInventory().remove(Material.BARRIER);
+            }
             player.getInventory().addItem(joker);
 
             teamsConfig.toFileConfiguration().set(team + ".jokersLeft", amount);

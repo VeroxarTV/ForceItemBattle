@@ -63,7 +63,6 @@ public class GameListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getWhoClicked() instanceof Player player) {
             UUID uuid = player.getUniqueId();
-
             if (event.getView().title().equals(Component.text("Geschaffte Aufgaben"))) {
                 if (!resultInventoryManager.isInAnimation()) {
                     if (event.getCurrentItem() != null) {
@@ -95,6 +94,7 @@ public class GameListener implements Listener {
 
             if (event.getCurrentItem() != null) {
                 if (!gameCountdown.isRunning() || gameCountdown.isFinished()) {
+                    event.setCancelled(true);
                     return;
                 }
                 if (teamInventoryManager.isTeamMode()) {

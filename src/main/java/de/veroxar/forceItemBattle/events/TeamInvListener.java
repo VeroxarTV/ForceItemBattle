@@ -14,8 +14,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-import java.util.Objects;
-
 public class TeamInvListener implements Listener {
 
     Data data = ForceItemBattle.getData();
@@ -25,7 +23,7 @@ public class TeamInvListener implements Listener {
 
     @EventHandler
     public void onInventoryClick (InventoryClickEvent event) {
-        if (Objects.equals(event.getInventory().getHolder(), inventoryManager.getHolder())) {
+        if (event.getInventory().getHolder() instanceof TeamInventoryManager) {
             Player player = (Player) event.getView().getPlayer();
             if (event.getCurrentItem() != null) {
                 if (event.getCurrentItem().hasItemMeta()) {

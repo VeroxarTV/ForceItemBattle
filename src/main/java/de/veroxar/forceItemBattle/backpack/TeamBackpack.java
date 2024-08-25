@@ -14,12 +14,12 @@ public class TeamBackpack {
 
     public TeamBackpack(String teamName) {
         this.teamName = teamName;
-        this.inventory = Bukkit.createInventory(null, 9*3, Component.text("Backpack"));
+        this.inventory = Bukkit.createInventory(null, 9*3, Component.text("Team-Backpack"));
     }
 
     public TeamBackpack(String teamName, String base64) throws IOException {
         this.teamName = teamName;
-        this.inventory = Bukkit.createInventory(null, 9*3, Component.text("Backpack"));
+        this.inventory = Bukkit.createInventory(null, 9*3, Component.text("Team-Backpack"));
         this.inventory.setContents(Base64.itemStackArrayFromBase64(base64));
     }
 

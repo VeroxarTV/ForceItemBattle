@@ -12,12 +12,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-public class TeamInventoryManager {
+public class TeamInventoryManager implements InventoryHolder {
 
     private final Inventory inventory;
     private final InventoryHolder holder;
@@ -28,7 +28,7 @@ public class TeamInventoryManager {
     TeamManager teamManager = data.getTeamManager();
 
     public TeamInventoryManager() {
-        this.holder = Bukkit.getPlayer(UUID.randomUUID());
+        this.holder = this;
         this.inventory = Bukkit.createInventory(holder, 9, Component.text("Teams: "));
         if (settingsConfig.toFileConfiguration().contains("settings.teamMode")) {
             this.teamMode = settingsConfig.toFileConfiguration().getBoolean("settings.teamMode");
@@ -138,4 +138,8 @@ public class TeamInventoryManager {
         inventory.setItem(8, grayGlassPane);
     }
 
+    @Override
+    public @NotNull Inventory getInventory() {
+        return inventory;
+    }
 }
