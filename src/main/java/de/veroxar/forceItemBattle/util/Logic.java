@@ -477,7 +477,7 @@ public class Logic {
         if (amount <= 0)
             amount = 5;
         if (teamsConfig.toFileConfiguration().contains(teamName + ".jokersLeft")) {
-            amount = playersConfig.toFileConfiguration().getInt(teamName + ".jokersLeft");
+            amount = teamsConfig.toFileConfiguration().getInt(teamName + ".jokersLeft");
             if (amount == 0)
                 return;
         }

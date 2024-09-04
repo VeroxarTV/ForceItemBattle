@@ -122,6 +122,7 @@ public final class ForceItemBattle extends JavaPlugin {
         Objects.requireNonNull(getCommand("end")).setExecutor(new EndCommand());
         Objects.requireNonNull(getCommand("team")).setExecutor(new TeamCommand());
         Objects.requireNonNull(getCommand("countdown")).setExecutor(new CountdownCommand());
+        Objects.requireNonNull(getCommand("teamchat")).setExecutor(new TeamChatCommand());
     }
 
     private void initializeData(){

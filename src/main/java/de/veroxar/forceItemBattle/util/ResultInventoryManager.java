@@ -563,16 +563,16 @@ public class ResultInventoryManager {
         inAnimation = false;
         if (alreadyUsed)
             return;
-        String teamNameDisplay = "NULL";
+        Component teamNameDisplay = Component.text("");
         switch (teamName.toLowerCase()) {
-            case "blue" -> teamNameDisplay = "Blau";
-            case "red" -> teamNameDisplay = "Rot";
-            case "yellow" -> teamNameDisplay = "Gelb";
-            case "green" -> teamNameDisplay = "Grün";
+            case "blue" -> teamNameDisplay = Component.text("Blau").color(NamedTextColor.BLUE);
+            case "red" -> teamNameDisplay = Component.text("Rot").color(NamedTextColor.RED);
+            case "yellow" -> teamNameDisplay = Component.text("Gelb").color(NamedTextColor.YELLOW);
+            case "green" -> teamNameDisplay = Component.text("Grün").color(NamedTextColor.GREEN);
         }
 
         Component posTXT = Component.text(position);
-        Component teamTXT = Component.text(". " + teamNameDisplay);
+        Component teamTXT = Component.text(". ").append(teamNameDisplay);
         Component separatorTXT = Component.text(" - ");
         Component pointsTXT = Component.text(logic.getTeamPoints(teamName)).color(NamedTextColor.WHITE);
         Component overviewClickable = Component.text(" [Übersicht]").color(NamedTextColor.GREEN).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/result " + teamName + " no"));
@@ -580,19 +580,19 @@ public class ResultInventoryManager {
         for (Player players : Bukkit.getOnlinePlayers()) {
             switch (position) {
                 case 3:
-                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.DARK_GRAY).append(Component.text("." + teamNameDisplay).color(NamedTextColor.WHITE)), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
-                    players.sendMessage(posTXT.color(NamedTextColor.DARK_GRAY).append(teamTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.DARK_GRAY).append(teamTXT), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.sendMessage(posTXT.color(NamedTextColor.DARK_GRAY).append(teamTXT).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 case 2:
-                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GRAY).append(Component.text("." + teamNameDisplay).color(NamedTextColor.WHITE)), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
-                    players.sendMessage(posTXT.color(NamedTextColor.GRAY).append(teamTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GRAY).append(teamTXT), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.sendMessage(posTXT.color(NamedTextColor.GRAY).append(teamTXT).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 case 1:
-                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GOLD).append(Component.text("." + teamNameDisplay).color(NamedTextColor.WHITE)), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
-                    players.sendMessage(posTXT.color(NamedTextColor.GOLD).append(teamTXT.color(NamedTextColor.WHITE)).append(separatorTXT).append(pointsTXT).append(overviewClickable));
+                    players.showTitle(Title.title(Component.text( position).color(NamedTextColor.GOLD).append(teamTXT), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.sendMessage(posTXT.color(NamedTextColor.GOLD).append(teamTXT).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
                 default:
-                    players.showTitle(Title.title(Component.text(position + "." + teamNameDisplay), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
+                    players.showTitle(Title.title(Component.text(position).append(teamTXT), Component.text(logic.getTeamPoints(teamName) + " Aufgaben geschafft").color(NamedTextColor.GOLD)));
                     players.sendMessage(posTXT.append(teamTXT).append(separatorTXT).append(pointsTXT).append(overviewClickable));
                     break;
             }

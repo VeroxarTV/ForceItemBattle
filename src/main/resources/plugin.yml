@@ -24,3 +24,5 @@ commands:
     permission: forceItemBattle.dev.commands.task
   team:
     aliases: [ teams ]
+  teamChat:
+    aliases: [ tc ]

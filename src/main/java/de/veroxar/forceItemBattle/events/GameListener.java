@@ -10,8 +10,10 @@ import de.veroxar.forceItemBattle.team.TeamManager;
 import de.veroxar.forceItemBattle.util.Logic;
 import de.veroxar.forceItemBattle.util.ResultInventoryManager;
 import de.veroxar.forceItemBattle.util.TeamInventoryManager;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -139,12 +141,14 @@ public class GameListener implements Listener {
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         if (!gameCountdown.isRunning())
             return;
-        logic.showBlockAbovePlayer(event.getPlayer(), taskManager.getTask(event.getPlayer().getUniqueId()).getMaterial());
+
         if (teamInventoryManager.isTeamMode()) {
+            logic.showBlockAbovePlayer(event.getPlayer(), taskManager.getTeamTask(teamManager.getTeamName(event.getPlayer())).getMaterial());
             logic.giveJokerToTeam(event.getPlayer());
             return;
         }
         logic.giveJokerToPlayer(event.getPlayer());
+        logic.showBlockAbovePlayer(event.getPlayer(), taskManager.getTask(event.getPlayer().getUniqueId()).getMaterial());
     }
 
     @EventHandler
@@ -215,6 +219,36 @@ public class GameListener implements Listener {
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
         if (gameCountdown.isFinished())
             event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onAsyncChat(AsyncChatEvent event) {
+        if (teamInventoryManager.isTeamMode()) {
+            Player player = event.getPlayer();
+            if (teamManager.hasTeam(player)) {
+                String teamName = "null";
+                String playerName = player.getName();
+                switch (teamManager.getTeamName(player).toLowerCase()) {
+                    case "blue" -> teamName = "§9Blau";
+                    case "red" -> teamName = "§cRot";
+                    case "yellow" -> teamName = "§eGelb";
+                    case "green" -> teamName = "§aGrün";
+                }
+                switch (teamManager.getTeamName(player).toLowerCase()) {
+                    case "blue" -> playerName = "§9" + playerName;
+                    case "red" -> playerName = "§c" + playerName;
+                    case "yellow" -> playerName = "§e" + playerName;
+                    case "green" -> playerName = "§a" + playerName;
+                }
+                Component prefix = LegacyComponentSerializer.legacyAmpersand().deserialize("§8[" + teamName + "§8] " + playerName + " §8>> ");
+                Component message = event.message();
+                Bukkit.getConsoleSender().sendMessage(prefix.append(message));
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    onlinePlayer.sendMessage(prefix.append(message));
+                }
+                event.setCancelled(true);
+            }
+        }
     }
 
 }
