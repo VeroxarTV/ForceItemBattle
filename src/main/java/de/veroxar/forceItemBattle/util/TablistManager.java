@@ -3,7 +3,9 @@ package de.veroxar.forceItemBattle.util;
 import de.veroxar.forceItemBattle.ForceItemBattle;
 import de.veroxar.forceItemBattle.data.Data;
 import de.veroxar.forceItemBattle.team.TeamManager;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
@@ -47,16 +49,19 @@ public class TablistManager {
             this.allowFriendlyFire = teamManager.getAllowFriendlyFire(teamName);
 
             team.setPrefix(teamPrefix);
-            team.setSuffix("");
+            team.suffix(LegacyComponentSerializer.legacyAmpersand().deserialize(""));
             team.color(teamColor);
             team.setAllowFriendlyFire(allowFriendlyFire);
 
             for (Player target : Bukkit.getOnlinePlayers()) {
                 if (teamManager.isInTeam(target, teamName)) {
                     team.addPlayer(target);
+                    team.suffix(Component.text(" [").color(NamedTextColor.GRAY)
+                            .append(data.getLogic().getCurrentTeamItemName(teamName).append(Component.text("]").color(NamedTextColor.GRAY))));
                     player.setScoreboard(scoreboard);
                 } else if (team.hasPlayer(target)) {
                     team.removePlayer(target);
+                    team.suffix(LegacyComponentSerializer.legacyAmpersand().deserialize(""));
                     player.setScoreboard(scoreboard);
                 }
             }

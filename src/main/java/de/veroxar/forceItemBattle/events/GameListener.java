@@ -15,6 +15,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,6 +44,10 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onEntityPickupItem(EntityPickupItemEvent event) {
+        if (event.getEntity() instanceof Player player && player.isOp()) {
+            event.setCancelled(false);
+            return;
+        }
         if (!gameCountdown.isRunning() || gameCountdown.isFinished()) {
             return;
         }
@@ -115,6 +120,10 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
+        if (event.getWhoClicked() instanceof Player player && player.isOp()) {
+            event.setCancelled(false);
+            return;
+        }
         if (!gameCountdown.isRunning() || gameCountdown.isFinished()) {
             return;
         }
@@ -143,16 +152,24 @@ public class GameListener implements Listener {
             return;
 
         if (teamInventoryManager.isTeamMode()) {
+            if (data.getInstance().getServer().getWorlds().getFirst().getGameRuleValue(GameRule.KEEP_INVENTORY).equals(false)) {
+                logic.giveJokerToTeam(event.getPlayer());
+            }
             logic.showBlockAbovePlayer(event.getPlayer(), taskManager.getTeamTask(teamManager.getTeamName(event.getPlayer())).getMaterial());
-            logic.giveJokerToTeam(event.getPlayer());
             return;
         }
-        logic.giveJokerToPlayer(event.getPlayer());
+        if (data.getInstance().getServer().getWorlds().getFirst().getGameRuleValue(GameRule.KEEP_INVENTORY).equals(false)) {
+            logic.giveJokerToPlayer(event.getPlayer());
+        }
         logic.showBlockAbovePlayer(event.getPlayer(), taskManager.getTask(event.getPlayer().getUniqueId()).getMaterial());
     }
 
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
+        if (event.getPlayer().isOp()) {
+            event.setCancelled(false);
+            return;
+        }
         if (gameCountdown.isFinished())
             event.setCancelled(true);
 
@@ -169,9 +186,15 @@ public class GameListener implements Listener {
     @EventHandler
     public void onEntityAddToWorld(EntityAddToWorldEvent event) {
         if (gameCountdown.isRunning()) {
-            if (event.getEntity() instanceof  Player player && logic.hasTask(player)) {
-                int delay = 1;
-                Bukkit.getScheduler().runTaskLater(data.getInstance(), () -> logic.showBlockAbovePlayer(player, taskManager.getTask(player.getUniqueId()).getMaterial()), delay);
+            if (event.getEntity() instanceof Player player) {
+                if (logic.hasTask(player)) {
+                    int delay = 1;
+                    Bukkit.getScheduler().runTaskLater(data.getInstance(), () -> logic.showBlockAbovePlayer(player, taskManager.getTask(player.getUniqueId()).getMaterial()), delay);
+                }
+                if (logic.hasTeamTask(teamManager.getTeamName(player))) {
+                    int delay = 1;
+                    Bukkit.getScheduler().runTaskLater(data.getInstance(), () -> logic.showBlockAbovePlayer(player, taskManager.getTeamTask(teamManager.getTeamName(player)).getMaterial()), delay);
+                }
             }
         }
     }
@@ -180,44 +203,58 @@ public class GameListener implements Listener {
     @EventHandler
     public void onEntityRemoveFromWorld(EntityRemoveFromWorldEvent event) {
         if (gameCountdown.isRunning()) {
-            if (event.getEntity() instanceof  Player player && logic.hasTask(player))
-                logic.removeBlockAbovePlayer(player);
+            if (event.getEntity() instanceof Player player) {
+                if (logic.hasTask(player)) {
+                    logic.removeBlockAbovePlayer(player);
+                }
+                if (logic.hasTeamTask(teamManager.getTeamName(player))) {
+                    logic.removeBlockAbovePlayer(player);
+                }
+            }
         }
     }
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        if (gameCountdown.isFinished())
+        if (event.getPlayer().isOp()) {
+            event.setCancelled(false);
+            return;
+        }
+        if (gameCountdown.isFinished() || !gameCountdown.isStarted())
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        if (gameCountdown.isFinished())
+        if (event.getPlayer().isOp()) {
+            event.setCancelled(false);
+            return;
+        }
+        if (gameCountdown.isFinished() || !gameCountdown.isStarted())
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (gameCountdown.isFinished())
+        if (gameCountdown.isFinished() || !gameCountdown.isStarted())
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
-        if (gameCountdown.isFinished())
+        if (gameCountdown.isFinished() || !gameCountdown.isStarted())
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onEntitySpawn(EntitySpawnEvent event) {
-        if (gameCountdown.isFinished())
+        if (gameCountdown.isFinished() || !gameCountdown.isStarted())
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
-        if (gameCountdown.isFinished())
+        if (gameCountdown.isFinished() || !gameCountdown.isStarted())
             event.setCancelled(true);
     }
 

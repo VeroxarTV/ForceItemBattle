@@ -45,8 +45,12 @@ public final class ForceItemBattle extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        worldManager.deleteWorld(world);
         initializeData();
+        if (data.getConfigs().getSettingsConfig().toFileConfiguration().getBoolean("settings.WorldReset")) {
+            worldManager.deleteWorld(world);
+            data.getConfigs().getSettingsConfig().toFileConfiguration().set("settings.WorldReset", false);
+            data.getConfigs().getSettingsConfig().saveConfiguration();
+        }
         initializeDefaultTeams();
         loadCommands();
         loadListeners();
@@ -159,8 +163,6 @@ public final class ForceItemBattle extends JavaPlugin {
         saveConfigs();
         data.getLogic().removeAllTasks();
     }
-
-
 
     public static Data getData() {
         return data;

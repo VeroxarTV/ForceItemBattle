@@ -131,9 +131,11 @@ public class GameCountdown {
 
     public void onEnd() {
         setFinished(true);
+        data.getConfigs().getCountdownConfig().toFileConfiguration().set("countdown", 0);
+        data.getConfigs().getCountdownConfig().saveConfiguration();
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.showTitle(Title.title(Component.text("Zeit vorbei!").color(NamedTextColor.GOLD), (Component.text(""))));
-            Location spawn = player.getWorld().getSpawnLocation();
+            Location spawn = data.getInstance().getServer().getWorlds().getFirst().getSpawnLocation();
             spawn.setYaw(player.getYaw());
             spawn.setPitch(player.getPitch());
             player.teleportAsync(spawn);

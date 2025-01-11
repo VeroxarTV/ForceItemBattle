@@ -14,6 +14,7 @@ import de.veroxar.forceItemBattle.util.TablistManager;
 import de.veroxar.forceItemBattle.util.TeamInventoryManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -41,11 +42,18 @@ public class ResetCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
 
         if (args.length == 0) {
+            sender.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacyAmpersand().deserialize("&cBist du sicher das du den Spielstand und die Welt zurücksetzten möchtest? Bitte bestätige mit: &6/reset confirm &7(&cDer Server start neu&7)")));
+            return true;
+        }
+
+        if (args.length == 1 && args[0].equalsIgnoreCase("confirm")) {
             instance.reloadConfig();
             logic.resetPlayersConfig();
             logic.resetTeamsConfig();
             backpackManager.clear();
             gameCountdown.setStarted(false);
+            data.getConfigs().getSettingsConfig().toFileConfiguration().set("settings.WorldReset", true);
+            data.getConfigs().getSettingsConfig().saveConfiguration();
             ResultCommand.currentIndex = -1;
             if (instance.getConfig().getInt(".time") != 0) {
                 gameCountdown.setTime(instance.getConfig().getInt(".time"));
@@ -76,7 +84,6 @@ public class ResetCommand implements CommandExecutor {
                 }
                 tablistManager.setAllPlayerTeams();
             }
-
             if (gameCountdown.isRunning()) {
                 gameCountdown.setRunning(false);
                 gameCountdown.setFinished(false);
@@ -86,6 +93,11 @@ public class ResetCommand implements CommandExecutor {
             } else {
                 sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde zurückgesetzt!").color(NamedTextColor.GRAY)));
             }
+
+            Bukkit.getOnlinePlayers().forEach(player -> player.kick(LegacyComponentSerializer.legacyAmpersand().deserialize("&aDie Welt wird zurückgesetzt, bitte warte einen Moment! \n &cSollte der Server nicht starten überprüfen deine spigot.yml")));
+
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "restart");
+
         } else {
             sendUsage(sender);
         }

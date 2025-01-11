@@ -434,8 +434,8 @@ public class Logic {
             Player player = players.get(random.nextInt(players.size()));
 
             for (Player player1 : players) {
-                if (player.getInventory().contains(Material.BARRIER))
-                    player.getInventory().remove(Material.BARRIER);
+                if (player1.getInventory().contains(Material.BARRIER))
+                    player1.getInventory().remove(Material.BARRIER);
             }
             player.getInventory().addItem(joker);
 
