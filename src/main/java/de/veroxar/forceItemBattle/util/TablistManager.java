@@ -55,8 +55,12 @@ public class TablistManager {
             for (Player target : Bukkit.getOnlinePlayers()) {
                 if (teamManager.isInTeam(target, teamName)) {
                     team.addPlayer(target);
-                    team.suffix(Component.text(" [").color(NamedTextColor.GRAY)
-                            .append(data.getLogic().getCurrentTeamItemName(teamName).append(Component.text("]").color(NamedTextColor.GRAY))));
+                    if (data.getLogic().hasTeamTask(teamName)) {
+                        team.suffix(Component.text(" [").color(NamedTextColor.GRAY)
+                                .append(data.getLogic().getCurrentTeamItemName(teamName).append(Component.text("]").color(NamedTextColor.GRAY))));
+                    } else {
+                        team.setSuffix("");
+                    }
                     player.setScoreboard(scoreboard);
                 } else if (team.hasPlayer(target)) {
                     team.removePlayer(target);

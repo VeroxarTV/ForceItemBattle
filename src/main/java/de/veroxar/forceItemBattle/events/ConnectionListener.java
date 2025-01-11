@@ -29,6 +29,7 @@ public class ConnectionListener implements Listener {
         event.quitMessage(Component.text("- ").color(NamedTextColor.RED).append(Component.text(event.getPlayer().getName()).color(NamedTextColor.GRAY)));
         if (Bukkit.getOnlinePlayers().size() - 1 <= 0) {
             gameCountdown.setRunning(false);
+            gameCountdown.setStarted(false);
         }
     }
 }
