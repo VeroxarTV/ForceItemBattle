@@ -32,32 +32,32 @@ public class CountdownCommand implements CommandExecutor, TabCompleter {
             case "resume":
                 if (countdown.isRunning()) {
                     sender.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize(
-                            "§cDer Countdown läuft bereits.")));
+                            "§cThe countdown has already begun.")));
                     break;
                 }
                 if (!countdown.isStarted()) {
                     sender.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize(
-                            "§cStarte das Spiel mit §6/start.")));
+                            "§cStart the game with §6/start.")));
                     break;
                 }
                 countdown.setRunning(true);
                 sender.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize(
-                        "§7Der Countdown läuft nun weiter.")));
+                        "§7The countdown continues.")));
                 break;
             case "pause":
                 if (!countdown.isRunning()) {
                     sender.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize(
-                            "§cDer Countdown läuft nicht.")));
+                            "§cThe countdown is not running.")));
                     break;
                 }
                 countdown.setRunning(false);
                 sender.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize(
-                        "§7Der Countdown wurde pausiert.")));
+                        "§7The countdown has been paused.")));
                 break;
             case "time":
                 if (args.length != 2) {
                     sender.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize(
-                            "§7Verwendung§8: §9/countdown time <Zeit>")));
+                            "§7Use§8: §9/countdown time <time>")));
                     break;
                 }
                 try {
@@ -65,7 +65,7 @@ public class CountdownCommand implements CommandExecutor, TabCompleter {
                     countdown.setTime(seconds);
                 } catch (NumberFormatException e) {
                     sender.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize(
-                            "§cDein Parameter 2 muss eine Zahl sein.")));
+                            "§cYour parameter 2 must be a number.")));
                 }
                 break;
             default:
@@ -77,7 +77,7 @@ public class CountdownCommand implements CommandExecutor, TabCompleter {
 
     private void sendUsage(CommandSender sender) {
         sender.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize(
-                "§7Verwendung§8: §6/countdown resume, /countdown pause /countdown time <Zeit>")));
+                "§7Use§8: §6/countdown resume, /countdown pause /countdown time <time>")));
     }
 
     @Override
@@ -99,7 +99,7 @@ public class CountdownCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 2 && args[0].equalsIgnoreCase("time")) {
-            subcommands.add("<Zeit>");
+            subcommands.add("<time>");
         }
 
         return subcommands;

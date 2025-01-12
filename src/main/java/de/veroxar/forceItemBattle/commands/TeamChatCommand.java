@@ -38,12 +38,12 @@ public class TeamChatCommand implements CommandExecutor, TabCompleter {
                             teamPlayers.sendMessage("§8[§bTeamChat§8] §r" + player.getName() + " §8>> §r" + message);
                         }
                     } else {
-                        player.sendMessage(Messages.PREFIX.append(Component.text("Du bist in keinem Team!").color(NamedTextColor.RED)));
+                        player.sendMessage(Messages.PREFIX.append(Component.text("You are not in a team!").color(NamedTextColor.RED)));
                     }
                 }
             }
         } else {
-            sender.sendMessage(Messages.PREFIX.append(Component.text("Der Team Modus ist deaktiviert!").color(NamedTextColor.RED)));
+            sender.sendMessage(Messages.PREFIX.append(Component.text("Team mode is deactivated!").color(NamedTextColor.RED)));
         }
         return true;
     }

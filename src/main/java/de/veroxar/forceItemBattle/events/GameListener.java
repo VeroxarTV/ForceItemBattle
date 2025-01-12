@@ -70,12 +70,12 @@ public class GameListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getWhoClicked() instanceof Player player) {
             UUID uuid = player.getUniqueId();
-            if (event.getView().title().equals(Component.text("Geschaffte Aufgaben"))) {
+            if (event.getView().title().equals(Component.text("Completed tasks"))) {
                 if (!resultInventoryManager.isInAnimation()) {
                     if (event.getCurrentItem() != null) {
                         if (event.getCurrentItem().hasItemMeta()) {
                             if (event.getCurrentItem().getItemMeta().hasDisplayName()) {
-                                if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Nächste Seite").color(NamedTextColor.GREEN))) {
+                                if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Next page").color(NamedTextColor.GREEN))) {
                                     if (teamInventoryManager.isTeamMode()) {
                                         resultInventoryManager.switchPagesTeamMode(event.getInventory(), true);
                                         event.setCancelled(true);
@@ -83,7 +83,7 @@ public class GameListener implements Listener {
                                     }
                                     resultInventoryManager.switchPages(event.getInventory(), true);
                                     event.setCancelled(true);
-                                } else if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Vorherige Seite").color(NamedTextColor.RED))) {
+                                } else if (Objects.equals(event.getCurrentItem().getItemMeta().displayName(), Component.text("Previous page").color(NamedTextColor.RED))) {
                                     if (teamInventoryManager.isTeamMode()) {
                                         resultInventoryManager.switchPagesTeamMode(event.getInventory(), false);
                                         event.setCancelled(true);
@@ -266,10 +266,10 @@ public class GameListener implements Listener {
                 String teamName = "null";
                 String playerName = player.getName();
                 switch (teamManager.getTeamName(player).toLowerCase()) {
-                    case "blue" -> teamName = "§9Blau";
-                    case "red" -> teamName = "§cRot";
-                    case "yellow" -> teamName = "§eGelb";
-                    case "green" -> teamName = "§aGrün";
+                    case "blue" -> teamName = "§9Blue";
+                    case "red" -> teamName = "§cRed";
+                    case "yellow" -> teamName = "§eYellow";
+                    case "green" -> teamName = "§aGreen";
                 }
                 switch (teamManager.getTeamName(player).toLowerCase()) {
                     case "blue" -> playerName = "§9" + playerName;

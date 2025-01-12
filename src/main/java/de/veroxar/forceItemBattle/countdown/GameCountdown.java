@@ -134,14 +134,14 @@ public class GameCountdown {
         data.getConfigs().getCountdownConfig().toFileConfiguration().set("countdown", 0);
         data.getConfigs().getCountdownConfig().saveConfiguration();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.showTitle(Title.title(Component.text("Zeit vorbei!").color(NamedTextColor.GOLD), (Component.text(""))));
+            player.showTitle(Title.title(Component.text("Time over!").color(NamedTextColor.GOLD), (Component.text(""))));
             Location spawn = data.getInstance().getServer().getWorlds().getFirst().getSpawnLocation();
             spawn.setYaw(player.getYaw());
             spawn.setPitch(player.getPitch());
             player.teleportAsync(spawn);
             player.playSound(player, Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
             if (player.hasPermission("forceItemBattle.commands.result")) {
-                player.sendMessage(Messages.PREFIX.append(Component.text("Führe /result aus, um das Ergebnis anzuzeigen!").color(NamedTextColor.GRAY)));
+                player.sendMessage(Messages.PREFIX.append(Component.text("Execute /result to display the result!").color(NamedTextColor.GRAY)));
             }
         }
         if (inventoryManager.isTeamMode()) {

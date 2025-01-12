@@ -75,7 +75,7 @@ public final class ForceItemBattle extends JavaPlugin {
             // Änderungen speichern
             try (FileOutputStream out = new FileOutputStream(serverPropertiesFile)) {
                 properties.store(out, null);
-                getLogger().info(key + " wurde auf den Wert: " + value + " gesetzt!");
+                getLogger().info(key + " was set to the value: " + value + "!");
             }
 
         } catch (IOException e) {
@@ -100,7 +100,7 @@ public final class ForceItemBattle extends JavaPlugin {
             // Änderungen speichern
             try (FileOutputStream out = new FileOutputStream(serverPropertiesFile)) {
                 properties.store(out, null);
-                getLogger().info("Der Wert von " + key + " lautet: " + value);
+                getLogger().info("The value of " + key + " is: " + value);
             }
             return value;
         } catch (IOException e) {

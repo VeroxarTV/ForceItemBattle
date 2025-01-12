@@ -24,7 +24,7 @@ public class TeamCommand implements CommandExecutor {
         if (sender instanceof Player player) {
 
             if (gameCountdown.isRunning()) {
-                player.sendMessage(Component.text("Dieser Befehl ist nur außerhalb des Spiels nutzbar!").color(NamedTextColor.RED));
+                player.sendMessage(Component.text("This command can only be used outside the game!").color(NamedTextColor.RED));
                 return true;
             }
 
@@ -36,7 +36,7 @@ public class TeamCommand implements CommandExecutor {
             if (teamInventoryManager.teamMode) {
                 teamInventoryManager.openTeamInv(player);
             } else {
-                player.sendMessage(Messages.PREFIX.append(Component.text("Der Teammodus ist deaktiviert").color(NamedTextColor.GRAY)));
+                player.sendMessage(Messages.PREFIX.append(Component.text("Team mode is deactivated").color(NamedTextColor.GRAY)));
             }
         }
         return true;

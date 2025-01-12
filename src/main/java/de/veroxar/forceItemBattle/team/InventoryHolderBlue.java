@@ -9,6 +9,6 @@ import org.jetbrains.annotations.NotNull;
 public class InventoryHolderBlue implements InventoryHolder {
     @Override
     public @NotNull Inventory getInventory() {
-        return Bukkit.createInventory(this, 9 * 6, Component.text("Geschaffte Aufgaben"));
+        return Bukkit.createInventory(this, 9 * 6, Component.text("Completed tasks"));
     }
 }

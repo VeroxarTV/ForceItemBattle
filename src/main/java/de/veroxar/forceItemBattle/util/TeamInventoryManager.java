@@ -64,8 +64,8 @@ public class TeamInventoryManager implements InventoryHolder {
     }
 
     private void setupInvOp(Inventory inventory) {
-        ItemStack toggleOn = new ItemBuilder(Material.RED_STAINED_GLASS).setName("§cTeams [AUS]").addLoreLine("§6Schalte den Teammodus: §aAN").toItemStack();
-        ItemStack toggleOff = new ItemBuilder(Material.GREEN_STAINED_GLASS).setName("§aTeams [AN]").addLoreLine("§6Schalte den Teammodus: §cAUS").toItemStack();
+        ItemStack toggleOn = new ItemBuilder(Material.RED_STAINED_GLASS).setName("§cTeams [OFF]").addLoreLine("§6Switch the team mode: §aON").toItemStack();
+        ItemStack toggleOff = new ItemBuilder(Material.GREEN_STAINED_GLASS).setName("§aTeams [ON]").addLoreLine("§6Switch the team mode: §cOFF").toItemStack();
 
         setupGlassPanes(inventory);
         setupTeamItems(inventory);
@@ -83,8 +83,8 @@ public class TeamInventoryManager implements InventoryHolder {
     }
 
     public void updateInv(Inventory inventory) {
-        ItemStack toggleOn = new ItemBuilder(Material.RED_STAINED_GLASS).setName("§cTeams [AUS]").addLoreLine("§6Schalte den Teammodus: §aAN").toItemStack();
-        ItemStack toggleOff = new ItemBuilder(Material.GREEN_STAINED_GLASS).setName("§aTeams [AN]").addLoreLine("§6Schalte den Teammodus: §cAUS").toItemStack();
+        ItemStack toggleOn = new ItemBuilder(Material.RED_STAINED_GLASS).setName("§cTeams [OFF]").addLoreLine("§6Switch the team mode: §aON").toItemStack();
+        ItemStack toggleOff = new ItemBuilder(Material.GREEN_STAINED_GLASS).setName("§aTeams [ON]").addLoreLine("§6Switch the team mode: §cOFF").toItemStack();
         if (teamMode) {
             inventory.setItem(0, toggleOff);
         } else {
@@ -93,10 +93,10 @@ public class TeamInventoryManager implements InventoryHolder {
     }
 
     private void setupTeamItems(Inventory inventory) {
-        ItemStack teamBlue = new ItemBuilder(Material.BLUE_WOOL).setName("§1Blau").addLoreLine("§6Tritt dem §1blauen §6Team bei!").toItemStack();
-        ItemStack teamRed = new ItemBuilder(Material.RED_WOOL).setName("§cRot").addLoreLine("§6Tritt dem §croten §6Team bei!").toItemStack();
-        ItemStack teamYellow = new ItemBuilder(Material.YELLOW_WOOL).setName("§eGelb").addLoreLine("§6Tritt dem §egelben §6Team bei!").toItemStack();
-        ItemStack teamGreen = new ItemBuilder(Material.GREEN_WOOL).setName("§aGrün").addLoreLine("§6Tritt dem §agrünen §6Team bei!").toItemStack();
+        ItemStack teamBlue = new ItemBuilder(Material.BLUE_WOOL).setName("§1Blue").addLoreLine("§6Join the §1blue §6team!").toItemStack();
+        ItemStack teamRed = new ItemBuilder(Material.RED_WOOL).setName("§cRed").addLoreLine("§6Join the §cred §6team!").toItemStack();
+        ItemStack teamYellow = new ItemBuilder(Material.YELLOW_WOOL).setName("§eYellow").addLoreLine("§6Join the §eyellow §6team!").toItemStack();
+        ItemStack teamGreen = new ItemBuilder(Material.GREEN_WOOL).setName("§aGreen").addLoreLine("§6Join the §agreen §6team!").toItemStack();
 
         inventory.setItem(2, teamBlue);
         inventory.setItem(3, teamRed);

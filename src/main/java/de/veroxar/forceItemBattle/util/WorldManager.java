@@ -19,7 +19,7 @@ public class WorldManager {
                 FileUtils.cleanDirectory(new File(world));
                 new File(Bukkit.getWorldContainer() + "/" + world + "/playerdata").mkdirs();
             } catch (IOException e) {
-                Bukkit.getConsoleSender().sendMessage("§cDie Welt konnte nicht gelöscht werden");
+                Bukkit.getConsoleSender().sendMessage("§cThe world could not be deleted");
             }
         }
     }

@@ -35,16 +35,16 @@ public class SetTaskCommand implements CommandExecutor, TabCompleter {
                     try {
                         material = Material.valueOf(args[0].toUpperCase());
                     } catch (IllegalArgumentException e) {
-                        player.sendMessage(Messages.PREFIX.append(Component.text("Das ist kein gültiges Item").color(NamedTextColor.RED)));
+                        player.sendMessage(Messages.PREFIX.append(Component.text("This is not a valid item!").color(NamedTextColor.RED)));
                         return true;
                     }
                     logic.setTask(player, material);
-                    player.sendMessage(Messages.PREFIX.append(Component.text("Die Aufgabe wurde gesetzt!!").color(NamedTextColor.GRAY)));
+                    player.sendMessage(Messages.PREFIX.append(Component.text("The task has been set!").color(NamedTextColor.GRAY)));
                 } else {
                     sendUsage(sender);
                 }
             } else {
-                player.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel läuft nicht").color(NamedTextColor.RED)));
+                player.sendMessage(Messages.PREFIX.append(Component.text("The game is not running!").color(NamedTextColor.RED)));
             }
 
 
@@ -55,7 +55,7 @@ public class SetTaskCommand implements CommandExecutor, TabCompleter {
     }
 
     public void sendUsage(CommandSender sender) {
-        sender.sendMessage(Messages.PREFIX.append(Component.text("Bitte nutze /task <Item> um das Item als Aufgabe zu setzen!").color(NamedTextColor.GRAY)));
+        sender.sendMessage(Messages.PREFIX.append(Component.text("Please use /task <Item> to set the item as a task!").color(NamedTextColor.GRAY)));
     }
 
 

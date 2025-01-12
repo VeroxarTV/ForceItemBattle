@@ -42,7 +42,7 @@ public class ResetCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
 
         if (args.length == 0) {
-            sender.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacyAmpersand().deserialize("&cBist du sicher das du den Spielstand und die Welt zurücksetzten möchtest? Bitte bestätige mit: &6/reset confirm &7(&cDer Server start neu&7)")));
+            sender.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacyAmpersand().deserialize("&cAre you sure you want to reset the game state and the world? Please confirm with: &6/reset confirm &7(&cThe server will restart&7)")));
             return true;
         }
 
@@ -88,13 +88,13 @@ public class ResetCommand implements CommandExecutor {
                 gameCountdown.setRunning(false);
                 gameCountdown.setFinished(false);
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde zurückgesetzt!").color(NamedTextColor.GRAY)));
+                    player.sendMessage(Messages.PREFIX.append(Component.text("The game has been reset!").color(NamedTextColor.GRAY)));
                 }
             } else {
-                sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde zurückgesetzt!").color(NamedTextColor.GRAY)));
+                sender.sendMessage(Messages.PREFIX.append(Component.text("The game has been reset!").color(NamedTextColor.GRAY)));
             }
 
-            Bukkit.getOnlinePlayers().forEach(player -> player.kick(LegacyComponentSerializer.legacyAmpersand().deserialize("&aDie Welt wird zurückgesetzt, bitte warte einen Moment! \n &cSollte der Server nicht starten überprüfen deine spigot.yml")));
+            Bukkit.getOnlinePlayers().forEach(player -> player.kick(LegacyComponentSerializer.legacyAmpersand().deserialize("&aThe world will be reset, please wait a moment! \n &cIf the server does not start check your spigot.yml")));
 
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "restart");
 
@@ -105,6 +105,6 @@ public class ResetCommand implements CommandExecutor {
     }
 
     public void sendUsage(CommandSender sender) {
-        sender.sendMessage(Messages.PREFIX.append(Component.text("Bitte nutze /reset um das Spiel zurückzusetzen").color(NamedTextColor.GRAY)));
+        sender.sendMessage(Messages.PREFIX.append(Component.text("Please use /reset to reset the game").color(NamedTextColor.GRAY)));
     }
 }

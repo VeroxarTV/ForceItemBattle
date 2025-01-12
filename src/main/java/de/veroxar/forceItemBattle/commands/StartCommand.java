@@ -36,7 +36,7 @@ public class StartCommand implements CommandExecutor {
                 gameCountdown.setStarted(true);
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde gestartet!").color(NamedTextColor.GREEN)));
+                    player.sendMessage(Messages.PREFIX.append(Component.text("The game has started!").color(NamedTextColor.GREEN)));
                     player.setHealth(20);
                     player.setFoodLevel(20);
                     player.getWorld().setTime(0);
@@ -57,7 +57,7 @@ public class StartCommand implements CommandExecutor {
                     logic.giveJokers();
                 }
             } else {
-                sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel wurde bereits gestartet!").color(NamedTextColor.RED)));
+                sender.sendMessage(Messages.PREFIX.append(Component.text("The game has already started!").color(NamedTextColor.RED)));
                 return true;
             }
 
@@ -70,6 +70,6 @@ public class StartCommand implements CommandExecutor {
     }
 
     public void sendUsage(CommandSender sender) {
-        sender.sendMessage(Messages.PREFIX.append(Component.text("Bitte nutze /start um das Spiel zu beginnen!").color(NamedTextColor.GRAY)));
+        sender.sendMessage(Messages.PREFIX.append(Component.text("Please use /start to start the game!").color(NamedTextColor.GRAY)));
     }
 }

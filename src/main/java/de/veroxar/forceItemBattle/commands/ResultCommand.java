@@ -53,7 +53,7 @@ public class ResultCommand implements CommandExecutor {
                     // Erhöhe den Index und hole das nächste Team
                     currentIndex++;
                     if (currentIndex >= sortedPlacements.size()) {
-                        player.sendMessage(Messages.PREFIX.append(Component.text("Keine weiteren Teamplätze verfügbar.").color(NamedTextColor.GRAY)));
+                        player.sendMessage(Messages.PREFIX.append(Component.text("No further team places available.").color(NamedTextColor.GRAY)));
                         return true;
                     }
 
@@ -67,7 +67,7 @@ public class ResultCommand implements CommandExecutor {
                             onlinePlayer.openInventory(resultInventoryManager.createResultInv(currentTeam,pos));
                         }
                     } else {
-                        player.sendMessage(Messages.PREFIX + "Das Team " + currentTeam + " existiert nicht.");
+                        player.sendMessage(Messages.PREFIX + "The team " + currentTeam + " does not exist.");
                     }
 
                     return true;
@@ -84,7 +84,7 @@ public class ResultCommand implements CommandExecutor {
                 // Erhöhe den Index und hole die nächste UUID
                 currentIndex++;
                 if (currentIndex >= sortedPlacements.size()) {
-                    player.sendMessage(Messages.PREFIX.append(Component.text("Keine weiteren Spielerplätze verfügbar.").color(NamedTextColor.GRAY)));
+                    player.sendMessage(Messages.PREFIX.append(Component.text("No further player places available.").color(NamedTextColor.GRAY)));
                     return true;
                 }
 
@@ -99,13 +99,13 @@ public class ResultCommand implements CommandExecutor {
                         onlinePlayer.openInventory(resultInventoryManager.createResultInv(currentPlayer,pos));
                     }
                 } else {
-                    player.sendMessage(Messages.PREFIX + "Der Spieler mit der UUID " + currentPlayerUUID + " ist derzeit nicht online.");
+                    player.sendMessage(Messages.PREFIX + "The player with the UUID " + currentPlayerUUID + " is currently not online.");
                 }
 
             } else if (gameCountdown.isRunning()){
-                sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel ist noch nicht beendet!").color(NamedTextColor.RED)));
+                sender.sendMessage(Messages.PREFIX.append(Component.text("The game is not over yet!").color(NamedTextColor.RED)));
             } else {
-                sender.sendMessage(Messages.PREFIX.append(Component.text("Das Spiel hat noch nicht begonnen!").color(NamedTextColor.RED)));
+                sender.sendMessage(Messages.PREFIX.append(Component.text("The game hasn't started yet!").color(NamedTextColor.RED)));
             }
         } else if (args.length == 2) {
             if (inventoryManager.isTeamMode()) {
@@ -123,7 +123,7 @@ public class ResultCommand implements CommandExecutor {
                 sendUsage(sender);
             } else {
                 player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize(
-                        "§cNur ein Admin kann diesen Befehl ausführen!")));
+                        "&cOnly an admin can execute this command!")));
             }
             return true;
         }
@@ -131,7 +131,7 @@ public class ResultCommand implements CommandExecutor {
         return true;
     }
     public void sendUsage(CommandSender sender) {
-        sender.sendMessage(Messages.PREFIX.append(Component.text("Bitte nutze /result um das Endergebnis anzuzeigen!").color(NamedTextColor.GRAY)));
+        sender.sendMessage(Messages.PREFIX.append(Component.text("Please use /result to display the final result!").color(NamedTextColor.GRAY)));
 
     }
 }

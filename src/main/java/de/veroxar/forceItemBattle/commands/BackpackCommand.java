@@ -34,7 +34,7 @@ public class BackpackCommand implements CommandExecutor {
                     player.openInventory(teamBackpack.getInventory());
                 } else {
                     player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize(
-                            " §7Der Teammodus ist §aaktiv. §cDu bist in keinem Team!")));
+                            " §7The team mode is §aactive. §cYou are not in a team!")));
                 }
             } else {
                 Backpack backpack = backpackManager.getBackpack(player.getUniqueId());

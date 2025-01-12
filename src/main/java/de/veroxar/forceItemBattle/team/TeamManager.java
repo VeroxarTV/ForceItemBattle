@@ -53,18 +53,18 @@ public class TeamManager {
                return true;
            } else {
                teamNameComponent = switch (teamName.toLowerCase()) {
-                   case "blue" -> Component.text("Blau").color(NamedTextColor.BLUE);
-                   case "red" -> Component.text("Rot").color(NamedTextColor.RED);
-                   case "yellow" -> Component.text("Gelb").color(NamedTextColor.YELLOW);
-                   case "green" -> Component.text("Grün").color(NamedTextColor.GREEN);
+                   case "blue" -> Component.text("Blue").color(NamedTextColor.BLUE);
+                   case "red" -> Component.text("Red").color(NamedTextColor.RED);
+                   case "yellow" -> Component.text("Yellow").color(NamedTextColor.YELLOW);
+                   case "green" -> Component.text("Green").color(NamedTextColor.GREEN);
                    default -> teamNameComponent;
                };
-               player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacyAmpersand().deserialize("§cDu bist bereits in Team§7: "))
+               player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacyAmpersand().deserialize("§cYou are already in Team§7: "))
                        .append(teamNameComponent));
                return false;
            }
        } else {
-           player.sendMessage(Messages.PREFIX.append(Component.text("Unbekanntes Team: ").color(NamedTextColor.GRAY)
+           player.sendMessage(Messages.PREFIX.append(Component.text("Unknown team: ").color(NamedTextColor.GRAY)
                    .append(teamNameComponent)));
            return false;
        }
@@ -80,11 +80,11 @@ public class TeamManager {
                 playersFileConfig.set(uuid + ".team", null);
                 playersConfig.saveConfiguration();
             } else  {
-                player.sendMessage(Messages.PREFIX.append(Component.text("Spieler nicht in Team: ").color(NamedTextColor.RED)
+                player.sendMessage(Messages.PREFIX.append(Component.text("Player not in team: ").color(NamedTextColor.RED)
                         .append(teamNameComponent)));
             }
         } else {
-            player.sendMessage(Messages.PREFIX.append(Component.text("Unbekanntes Team: ").color(NamedTextColor.RED)
+            player.sendMessage(Messages.PREFIX.append(Component.text("Unknown team: ").color(NamedTextColor.RED)
                     .append(teamNameComponent)));
         }
     }

@@ -28,13 +28,13 @@ public class TeamInvListener implements Listener {
             if (event.getCurrentItem() != null) {
                 if (event.getCurrentItem().hasItemMeta()) {
                     if (event.getCurrentItem().getItemMeta().hasDisplayName()) {
-                        if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cTeams [AUS]")) {
+                        if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cTeams [OFF]")) {
                             inventoryManager.setTeamMode(true);
                             inventoryManager.updateInv(event.getInventory());
                             player.closeInventory();
                             player.playSound(player, Sound.BLOCK_PISTON_EXTEND, 1, 1);
-                            player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7Teams wurde §aaktiviert!")));
-                        } else if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aTeams [AN]")) {
+                            player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7Teams was §aactivated!")));
+                        } else if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aTeams [ON]")) {
                             inventoryManager.setTeamMode(false);
                             inventoryManager.updateInv(event.getInventory());
                             player.closeInventory();
@@ -44,17 +44,17 @@ public class TeamInvListener implements Listener {
                             }
                             tablistManager.setAllPlayerTeams();
                             player.playSound(player, Sound.BLOCK_PISTON_CONTRACT, 1, 1);
-                            player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7Teams wurde §cdeaktiviert!")));
-                        } else if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§1Blau") && event.getClick().isLeftClick() && inventoryManager.isTeamMode()) {
+                            player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7Teams has been §cdeactivated! ")));
+                        } else if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§1Blue") && event.getClick().isLeftClick() && inventoryManager.isTeamMode()) {
                             player.closeInventory();
                             if (!(teamManager.joinTeam(player, "BLUE"))) {
                                 player.playSound(player, Sound.ENTITY_CAT_HISS, 1, 1);
                                 return;
                             }
                             player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
-                            player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7Du bist nun in Team: §1Blau")));
+                            player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7You are now in team: §1Blue")));
                             tablistManager.setAllPlayerTeams();
-                        } else if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cRot") && event.getClick().isLeftClick() && inventoryManager.isTeamMode()) {
+                        } else if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cRed") && event.getClick().isLeftClick() && inventoryManager.isTeamMode()) {
                             player.closeInventory();
                             if (!(teamManager.joinTeam(player, "RED"))) {
                                 player.playSound(player, Sound.ENTITY_CAT_HISS, 1, 1);
@@ -62,25 +62,25 @@ public class TeamInvListener implements Listener {
                             }
 
                             player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
-                            player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7Du bist nun in Team: §cRot")));
+                            player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7You are now in team: §cRed")));
                             tablistManager.setAllPlayerTeams();
-                        } else if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§eGelb") && event.getClick().isLeftClick() && inventoryManager.isTeamMode()) {
+                        } else if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§eYellow") && event.getClick().isLeftClick() && inventoryManager.isTeamMode()) {
                             player.closeInventory();
                             if (!(teamManager.joinTeam(player, "YELLOW"))) {
                                 player.playSound(player, Sound.ENTITY_CAT_HISS, 1, 1);
                                 return;
                             }
                             player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
-                            player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7Du bist nun in Team: §eGelb")));
+                            player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7You are now in team: §eYellow")));
                             tablistManager.setAllPlayerTeams();
-                        } else if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aGrün") && event.getClick().isLeftClick() && inventoryManager.isTeamMode()) {
+                        } else if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aGreen") && event.getClick().isLeftClick() && inventoryManager.isTeamMode()) {
                             player.closeInventory();
                             if (!(teamManager.joinTeam(player, "GREEN"))) {
                                 player.playSound(player, Sound.ENTITY_CAT_HISS, 1, 1);
                                 return;
                             }
                             player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
-                            player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7Du bist nun in Team: §aGrün")));
+                            player.sendMessage(Messages.PREFIX.append(LegacyComponentSerializer.legacySection().deserialize("§7You are now in team: §aGreen")));
                             tablistManager.setAllPlayerTeams();
                         }
                     }
