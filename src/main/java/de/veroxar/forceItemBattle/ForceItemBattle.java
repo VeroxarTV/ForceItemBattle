@@ -104,6 +104,8 @@ public final class ForceItemBattle extends JavaPlugin {
         return null;
     }
 
+
+
     private void loadListeners(){
         manager.registerEvents(new ConnectionListener(), this);
         manager.registerEvents(new GameListener(), this);
