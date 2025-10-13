@@ -19,8 +19,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -59,49 +61,42 @@ public final class ForceItemBattle extends JavaPlugin {
     }
 
     private void editServerProperties(String key, String value) {
-        // Pfad zur server.properties Datei
         File serverPropertiesFile = new File(getServer().getWorldContainer(), "server.properties");
 
-        // Properties-Objekt erstellen
-        Properties properties = new Properties();
+        try {
+            List<String> lines = Files.readAllLines(serverPropertiesFile.toPath(), StandardCharsets.ISO_8859_1);
+            boolean replaced = false;
 
-        try (FileInputStream in = new FileInputStream(serverPropertiesFile)) {
-            // Datei einlesen
-            properties.load(in);
-
-            // Property ändern
-            properties.setProperty(key, value);
-
-            // Änderungen speichern
-            try (FileOutputStream out = new FileOutputStream(serverPropertiesFile)) {
-                properties.store(out, null);
-                getLogger().info(key + " was set to the value: " + value + "!");
+            for (int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i);
+                if (line.startsWith(key + "=")) {
+                    // Unveränderte Speicherung — bestehende Escapes bleiben
+                    lines.set(i, key + "=" + value);
+                    replaced = true;
+                    break;
+                }
             }
 
+            if (!replaced) {
+                lines.add(key + "=" + value);
+            }
+
+            // Zeilenweise speichern, ISO-8859-1, keine automatische Escape-Konvertierung
+            Files.write(serverPropertiesFile.toPath(), lines, StandardCharsets.ISO_8859_1);
+            getLogger().info("Property '" + key + "' wurde auf '" + value + "' gesetzt.");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     private String getServerPropertiesValue(String key) {
-        // Pfad zur server.properties Datei
         File serverPropertiesFile = new File(getServer().getWorldContainer(), "server.properties");
-
-        // Properties-Objekt erstellen
         Properties properties = new Properties();
 
         try (FileInputStream in = new FileInputStream(serverPropertiesFile)) {
-            // Datei einlesen
-            properties.load(in);
-
-            // Property ändern
+            properties.load(in); // Nur lesen, keine Speicherung!
             String value = properties.getProperty(key);
-
-            // Änderungen speichern
-            try (FileOutputStream out = new FileOutputStream(serverPropertiesFile)) {
-                properties.store(out, null);
-                getLogger().info("The value of " + key + " is: " + value);
-            }
+            getLogger().info("Der Wert von " + key + " lautet: " + value);
             return value;
         } catch (IOException e) {
             e.printStackTrace();

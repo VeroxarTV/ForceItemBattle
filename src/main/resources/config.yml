@@ -5,3 +5,5 @@
 time: 10800
 #Set the number of jokers
 joker: 5
+#Set if players should be able to move before start of the challange or not
+moveable: true
