@@ -1,0 +1,28 @@
+name: ForceItemBattle
+author: Veroxar
+version: '1.0'
+main: de.veroxar.forceItemBattle.ForceItemBattle
+load: STARTUP
+api-version: '1.21'
+description: Force Item Battle Plugin
+
+commands:
+  backpack:
+    aliases: [ bp ]
+  start:
+    permission: forceItemBattle.commands.start
+  reset:
+    permission: forceItemBattle.commands.reset
+  skip:
+    permission: forceItemBattle.commands.skip
+  result:
+  end:
+    permission: forceItemBattle.commands.end
+  countdown:
+    permission: forceItemBattle.commands.countdown
+  task:
+    permission: forceItemBattle.dev.commands.task
+  team:
+    aliases: [ teams ]
+  teamChat:
+    aliases: [ tc ]
