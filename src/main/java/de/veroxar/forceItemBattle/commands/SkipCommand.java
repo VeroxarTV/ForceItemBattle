@@ -30,20 +30,48 @@ public class SkipCommand implements CommandExecutor {
                     player.sendMessage(Messages.PREFIX.append(Component.text("You have no task!").color(NamedTextColor.RED)));
                 }
             } else if (args.length == 1) {
-                for (Player target : Bukkit.getOnlinePlayers()) {
-                    if (target.getName().equalsIgnoreCase(args[0])) {
-                        Component targetName = Component.text(target.getName()).color(NamedTextColor.GOLD);
-                        Component playerName = Component.text(player.getName()).color(NamedTextColor.GOLD);
-                        if (logic.hasTask(target)) {
-                            logic.skipTask(target);
-                            player.sendMessage(Messages.PREFIX.append(Component.text("The player's task: ").color(NamedTextColor.GRAY).append(targetName).append(Component.text("was skipped!").color(NamedTextColor.GRAY))));
-                            target.sendMessage(Messages.PREFIX.append(Component.text("The player ").color(NamedTextColor.GRAY).append(playerName).append(Component.text("has skipped your task!!").color(NamedTextColor.GRAY))));
 
-                        } else
-                            player.sendMessage(Messages.PREFIX.append(Component.text("The player: ").color(NamedTextColor.RED).append(targetName).append(Component.text("has no task!").color(NamedTextColor.RED))));
-                    } else
-                        player.sendMessage(Messages.PREFIX.append(Component.text("The player: ").color(NamedTextColor.RED).append(Component.text(args[0]).color(NamedTextColor.GOLD).append(Component.text(" is not online!").color(NamedTextColor.RED)))));
+                Player target = null;
+
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    if (onlinePlayer.getName().equalsIgnoreCase(args[0])) {
+                        target = onlinePlayer;
+                        break; // player found, stop the loop
+                    }
                 }
+
+                if (target != null) {
+                    Component targetName = Component.text(target.getName()).color(NamedTextColor.GOLD);
+                    Component playerName = Component.text(player.getName()).color(NamedTextColor.GOLD);
+
+                    if (logic.hasTask(target)) {
+                        logic.skipTask(target);
+                        player.sendMessage(Messages.PREFIX.append(
+                                Component.text("The player's task: ").color(NamedTextColor.GRAY)
+                                        .append(targetName)
+                                        .append(Component.text(" was skipped!").color(NamedTextColor.GRAY))
+                        ));
+                        target.sendMessage(Messages.PREFIX.append(
+                                Component.text("The player ").color(NamedTextColor.GRAY)
+                                        .append(playerName)
+                                        .append(Component.text(" has skipped your task!").color(NamedTextColor.GRAY))
+                        ));
+                    } else {
+                        player.sendMessage(Messages.PREFIX.append(
+                                Component.text("The player: ").color(NamedTextColor.RED)
+                                        .append(targetName)
+                                        .append(Component.text(" has no task!").color(NamedTextColor.RED))
+                        ));
+                    }
+                } else {
+                    player.sendMessage(Messages.PREFIX.append(
+                            Component.text("The player: ").color(NamedTextColor.RED)
+                                    .append(Component.text(args[0]).color(NamedTextColor.GOLD))
+                                    .append(Component.text(" is not online!").color(NamedTextColor.RED))
+                    ));
+                }
+
+
             } else {
                 sendUsage(sender);
             }
