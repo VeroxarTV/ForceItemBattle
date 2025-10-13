@@ -30,20 +30,46 @@ public class SkipCommand implements CommandExecutor {
                     player.sendMessage(Messages.PREFIX.append(Component.text("Du hast keine Aufgabe!").color(NamedTextColor.RED)));
                 }
             } else if (args.length == 1) {
-                for (Player target : Bukkit.getOnlinePlayers()) {
-                    if (target.getName().equalsIgnoreCase(args[0])) {
-                        Component targetName = Component.text(target.getName()).color(NamedTextColor.GOLD);
-                        Component playerName = Component.text(player.getName()).color(NamedTextColor.GOLD);
-                        if (logic.hasTask(target)) {
-                            logic.skipTask(target);
-                            player.sendMessage(Messages.PREFIX.append(Component.text("Die Aufgabe von dem Spieler: ").color(NamedTextColor.GRAY).append(targetName).append(Component.text("wurde übersprungen!").color(NamedTextColor.GRAY))));
-                            target.sendMessage(Messages.PREFIX.append(Component.text("Deine Aufgabe wurde von: ").color(NamedTextColor.GRAY).append(playerName).append(Component.text("übersprungen!").color(NamedTextColor.GRAY))));
+                Player target = null;
 
-                        } else
-                            player.sendMessage(Messages.PREFIX.append(Component.text("Der Spieler: ").color(NamedTextColor.RED).append(targetName).append(Component.text("hat keine Aufgabe!").color(NamedTextColor.RED))));
-                    } else
-                        player.sendMessage(Messages.PREFIX.append(Component.text("Der Spieler: ").color(NamedTextColor.RED).append(Component.text(args[0]).color(NamedTextColor.GOLD).append(Component.text(" ist nicht Online!").color(NamedTextColor.RED)))));
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    if (onlinePlayer.getName().equalsIgnoreCase(args[0])) {
+                        target = onlinePlayer;
+                        break; // Spieler gefunden, Schleife abbrechen
+                    }
                 }
+
+                if (target != null) {
+                    Component targetName = Component.text(target.getName()).color(NamedTextColor.GOLD);
+                    Component playerName = Component.text(player.getName()).color(NamedTextColor.GOLD);
+
+                    if (logic.hasTask(target)) {
+                        logic.skipTask(target);
+                        player.sendMessage(Messages.PREFIX.append(
+                                Component.text("Die Aufgabe von dem Spieler: ").color(NamedTextColor.GRAY)
+                                        .append(targetName)
+                                        .append(Component.text(" wurde übersprungen!").color(NamedTextColor.GRAY))
+                        ));
+                        target.sendMessage(Messages.PREFIX.append(
+                                Component.text("Deine Aufgabe wurde von: ").color(NamedTextColor.GRAY)
+                                        .append(playerName)
+                                        .append(Component.text(" übersprungen!").color(NamedTextColor.GRAY))
+                        ));
+                    } else {
+                        player.sendMessage(Messages.PREFIX.append(
+                                Component.text("Der Spieler: ").color(NamedTextColor.RED)
+                                        .append(targetName)
+                                        .append(Component.text(" hat keine Aufgabe!").color(NamedTextColor.RED))
+                        ));
+                    }
+                } else {
+                    player.sendMessage(Messages.PREFIX.append(
+                            Component.text("Der Spieler: ").color(NamedTextColor.RED)
+                                    .append(Component.text(args[0]).color(NamedTextColor.GOLD))
+                                    .append(Component.text(" ist nicht online!").color(NamedTextColor.RED))
+                    ));
+                }
+
             } else {
                 sendUsage(sender);
             }
