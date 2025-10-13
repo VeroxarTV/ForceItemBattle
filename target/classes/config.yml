@@ -5,3 +5,5 @@
 time: 10800
 #Stelle die Anzahl der Joker ein
 joker: 5
+#Stelle ein, ob sich Spieler vor dem start des Spiels bewegen können
+moveable: true

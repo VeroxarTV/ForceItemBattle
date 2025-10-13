@@ -17,6 +17,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,7 +27,9 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -41,6 +44,9 @@ public class GameListener implements Listener {
     GameCountdown gameCountdown = data.getGameCountdown();
     TeamManager teamManager = data.getTeamManager();
     TeamInventoryManager teamInventoryManager = data.getTeamInventoryManager();
+    JavaPlugin instance = data.getInstance();
+    FileConfiguration config = instance.getConfig();
+
 
     @EventHandler
     public void onEntityPickupItem(EntityPickupItemEvent event) {
@@ -237,6 +243,13 @@ public class GameListener implements Listener {
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (gameCountdown.isFinished() || !gameCountdown.isStarted())
+            event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+
+        if (!gameCountdown.isStarted() && !config.getBoolean("moveable") && event.hasChangedPosition())
             event.setCancelled(true);
     }
 
