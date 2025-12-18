@@ -59,7 +59,7 @@ public class GameListener implements Listener {
         if (event.getEntity() instanceof Player player) {
             if (teamInventoryManager.isTeamMode()) {
                 String teamName = teamManager.getTeamName(player);
-                if (event.getItem().getItemStack().getType().equals(taskManager.getTeamTask(teamName).getMaterial())) {
+                if (teamName != null && event.getItem().getItemStack().getType().equals(taskManager.getTeamTask(teamName).getMaterial())) {
                     logic.completedTeamTask(teamName, false);
                 }
                 return;
@@ -111,7 +111,7 @@ public class GameListener implements Listener {
                 }
                 if (teamInventoryManager.isTeamMode()) {
                     String teamName = teamManager.getTeamName(player);
-                    if (event.getCurrentItem().getType().equals(taskManager.getTeamTask(teamName).getMaterial())) {
+                    if (teamName != null && event.getCurrentItem().getType().equals(taskManager.getTeamTask(teamName).getMaterial())) {
                         logic.completedTeamTask(teamName, false);
                     }
                     return;
@@ -135,7 +135,7 @@ public class GameListener implements Listener {
         if (event.getWhoClicked() instanceof Player player) {
             if (teamInventoryManager.isTeamMode()) {
                 String teamName = teamManager.getTeamName(player);
-                if (event.getCursor()!= null)
+                if (teamName != null && event.getCursor()!= null)
                     if (event.getCursor().getType().equals(taskManager.getTeamTask(teamName).getMaterial())) {
                         logic.completedTeamTask(teamName, false);
                     }
@@ -157,10 +157,13 @@ public class GameListener implements Listener {
             return;
 
         if (teamInventoryManager.isTeamMode()) {
+            String teamName = teamManager.getTeamName(event.getPlayer());
+            if (teamName == null) return;
+
             if (data.getInstance().getServer().getWorlds().getFirst().getGameRuleValue(GameRule.KEEP_INVENTORY).equals(false)) {
                 logic.giveJokerToTeam(event.getPlayer());
             }
-            logic.showBlockAbovePlayer(event.getPlayer(), taskManager.getTeamTask(teamManager.getTeamName(event.getPlayer())).getMaterial());
+            logic.showBlockAbovePlayer(event.getPlayer(), taskManager.getTeamTask(teamName).getMaterial());
             return;
         }
         if (data.getInstance().getServer().getWorlds().getFirst().getGameRuleValue(GameRule.KEEP_INVENTORY).equals(false)) {
@@ -196,9 +199,10 @@ public class GameListener implements Listener {
                     int delay = 1;
                     Bukkit.getScheduler().runTaskLater(data.getInstance(), () -> logic.showBlockAbovePlayer(player, taskManager.getTask(player.getUniqueId()).getMaterial()), delay);
                 }
-                if (logic.hasTeamTask(teamManager.getTeamName(player))) {
+                String teamName = teamManager.getTeamName(player);
+                if (teamName != null && logic.hasTeamTask(teamName)) {
                     int delay = 1;
-                    Bukkit.getScheduler().runTaskLater(data.getInstance(), () -> logic.showBlockAbovePlayer(player, taskManager.getTeamTask(teamManager.getTeamName(player)).getMaterial()), delay);
+                    Bukkit.getScheduler().runTaskLater(data.getInstance(), () -> logic.showBlockAbovePlayer(player, taskManager.getTeamTask(teamName).getMaterial()), delay);
                 }
             }
         }
@@ -212,7 +216,8 @@ public class GameListener implements Listener {
                 if (logic.hasTask(player)) {
                     logic.removeBlockAbovePlayer(player);
                 }
-                if (logic.hasTeamTask(teamManager.getTeamName(player))) {
+                String teamName = teamManager.getTeamName(player);
+                if (teamName != null && logic.hasTeamTask(teamName)) {
                     logic.removeBlockAbovePlayer(player);
                 }
             }
@@ -275,15 +280,18 @@ public class GameListener implements Listener {
         if (teamInventoryManager.isTeamMode()) {
             Player player = event.getPlayer();
             if (teamManager.hasTeam(player)) {
+                String playerTeamName = teamManager.getTeamName(player);
+                if (playerTeamName == null) return;
+
                 String teamName = "null";
                 String playerName = player.getName();
-                switch (teamManager.getTeamName(player).toLowerCase()) {
+                switch (playerTeamName.toLowerCase()) {
                     case "blue" -> teamName = "§9Blue";
                     case "red" -> teamName = "§cRed";
                     case "yellow" -> teamName = "§eYellow";
                     case "green" -> teamName = "§aGreen";
                 }
-                switch (teamManager.getTeamName(player).toLowerCase()) {
+                switch (playerTeamName.toLowerCase()) {
                     case "blue" -> playerName = "§9" + playerName;
                     case "red" -> playerName = "§c" + playerName;
                     case "yellow" -> playerName = "§e" + playerName;

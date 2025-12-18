@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class GameCountdown {
 
     Data data = ForceItemBattle.getData();
@@ -27,19 +29,21 @@ public class GameCountdown {
     TeamInventoryManager inventoryManager = data.getTeamInventoryManager();
     TeamManager teamManager = data.getTeamManager();
 
-    private boolean running;
-    private boolean finished;
-    private int time;
-    private boolean started;
+    private volatile boolean running;
+    private volatile boolean finished;
+    private final AtomicInteger time;
+    private volatile boolean started;
 
     public GameCountdown() {
+        int initialTime;
         if (countdownConfig.toFileConfiguration().getInt(".countdown") != 0) {
-            this.time = countdownConfig.toFileConfiguration().getInt(".countdown");
+            initialTime = countdownConfig.toFileConfiguration().getInt(".countdown");
         } else if (instance.getConfig().getInt(".time") != 0) {
-            this.time = instance.getConfig().getInt(".time");
+            initialTime = instance.getConfig().getInt(".time");
         } else {
-            this.time = 10800;
+            initialTime = 10800;
         }
+        this.time = new AtomicInteger(initialTime);
         this.running = false;
         this.finished = false;
         this.started = false;
@@ -67,11 +71,11 @@ public class GameCountdown {
     }
 
     public int getTime() {
-        return time;
+        return time.get();
     }
 
     public void setTime(int time) {
-        this.time = time;
+        this.time.set(time);
     }
 
     public void setStarted(boolean started) {
@@ -170,7 +174,7 @@ public class GameCountdown {
                      onEnd();
                  }
 
-                setTime(getTime() - 1);
+                time.decrementAndGet();
             }
         }.runTaskTimer(instance, 20, 20);
     }
