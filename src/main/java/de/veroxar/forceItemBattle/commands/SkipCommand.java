@@ -22,7 +22,7 @@ public class SkipCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
 
         if (sender instanceof Player player) {
-            if (args.length == 0 || args.length == 1 & args[0].equalsIgnoreCase(player.getName())) {
+            if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase(player.getName()))) {
                 if (logic.hasTask(player)) {
                     logic.skipTask(player);
                     player.sendMessage(Messages.PREFIX.append(Component.text("Your task has been skipped!").color(NamedTextColor.GRAY)));
