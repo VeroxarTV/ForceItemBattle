@@ -10,7 +10,7 @@ import java.util.UUID;
 public class Task {
 
     Data data = ForceItemBattle.getData();
-    RandomItemGenerator randomItemGenerator = data.getRadomItemGenerator();
+    RandomItemGenerator randomItemGenerator = data.getRandomItemGenerator();
 
     private final UUID uuid;
     private final Material material;

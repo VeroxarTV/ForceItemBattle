@@ -135,7 +135,7 @@ public final class ForceItemBattle extends JavaPlugin {
         data.setBackpackManager(new BackpackManager());
         data.setTaskManager(new TaskManager());
         data.setLogic(new Logic());
-        data.setRadomItemGenerator(new RandomItemGenerator());
+        data.setRandomItemGenerator(new RandomItemGenerator());
         data.setResultInventoryManager(new ResultInventoryManager());
         data.setWorldManager(worldManager);
     }
