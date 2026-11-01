@@ -24,7 +24,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+/**
+ * Main game logic handler for ForceItemBattle.
+ * Manages tasks, points, jokers, and player/team game state.
+ */
 public class Logic {
+
+    private static final int DEFAULT_JOKER_AMOUNT = 5;
 
     Data data = ForceItemBattle.getData();
     TaskManager taskManager = data.getTaskManager();
@@ -47,13 +53,7 @@ public class Logic {
     public Component getCurrentTeamItemName(String teamName) {
         if (hasTeamTask(teamName)) {
             Material material = taskManager.getTeamTask(teamName).getMaterial();
-            if (material.name().contains("BANNER_PATTERN")) {
-                Component translation = Component.translatable(Objects.requireNonNull(material.getItemTranslationKey())).color(NamedTextColor.GOLD);
-                Component sep = Component.text(": ").color(NamedTextColor.GRAY);
-                Component desc = Component.translatable(material.getItemTranslationKey() + ".desc").color(NamedTextColor.GOLD);
-                return translation.append(sep).append(desc);
-            }
-            return Component.translatable(Objects.requireNonNull(material.getItemTranslationKey())).color(NamedTextColor.GOLD);
+            return formatMaterialComponent(material);
         }
         return Component.text("");
     }
@@ -62,15 +62,19 @@ public class Logic {
         UUID uuid = player.getUniqueId();
         if (hasTask(player)) {
             Material material = taskManager.getTask(uuid).getMaterial();
-            if (material.name().contains("BANNER_PATTERN")) {
-                Component translation = Component.translatable(Objects.requireNonNull(material.getItemTranslationKey())).color(NamedTextColor.GOLD);
-                Component sep = Component.text(": ").color(NamedTextColor.GRAY);
-                Component desc = Component.translatable(material.getItemTranslationKey() + ".desc").color(NamedTextColor.GOLD);
-                return translation.append(sep).append(desc);
-            }
-            return Component.translatable(Objects.requireNonNull(material.getItemTranslationKey())).color(NamedTextColor.GOLD);
+            return formatMaterialComponent(material);
         }
         return Component.text("");
+    }
+
+    private Component formatMaterialComponent(Material material) {
+        if (material.name().contains("BANNER_PATTERN")) {
+            Component translation = Component.translatable(Objects.requireNonNull(material.getItemTranslationKey())).color(NamedTextColor.GOLD);
+            Component sep = Component.text(": ").color(NamedTextColor.GRAY);
+            Component desc = Component.translatable(material.getItemTranslationKey() + ".desc").color(NamedTextColor.GOLD);
+            return translation.append(sep).append(desc);
+        }
+        return Component.translatable(Objects.requireNonNull(material.getItemTranslationKey())).color(NamedTextColor.GOLD);
     }
 
     public void newTask(@NotNull Player player) {
@@ -122,6 +126,10 @@ public class Logic {
         if (player.getScoreboard().getTeam(player.getName()) != null) {
             Objects.requireNonNull(player.getScoreboard().getTeam(player.getName())).suffix(Component.text(""));
         }
+        removePlayerArmorStands(player);
+    }
+
+    private void removePlayerArmorStands(@NotNull Player player) {
         for (ArmorStand armorStand : player.getWorld().getEntitiesByClass(ArmorStand.class)) {
             if (armorStand.getScoreboardTags().contains(player.getUniqueId().toString())) {
                 armorStand.remove();
@@ -135,11 +143,7 @@ public class Logic {
             if (player.getScoreboard().getTeam(teamName) != null) {
                 Objects.requireNonNull(player.getScoreboard().getTeam(teamName)).suffix(Component.text(""));
             }
-            for (ArmorStand armorStand : player.getWorld().getEntitiesByClass(ArmorStand.class)) {
-                if (armorStand.getScoreboardTags().contains(player.getUniqueId().toString())) {
-                    armorStand.remove();
-                }
-            }
+            removePlayerArmorStands(player);
         }
     }
 
@@ -224,12 +228,7 @@ public class Logic {
     }
 
     public void showBlockAbovePlayer(@NotNull Player player, Material material) {
-
-        for (ArmorStand armorStand : player.getWorld().getEntitiesByClass(ArmorStand.class)) {
-            if (armorStand.getScoreboardTags().contains(player.getUniqueId().toString())) {
-                armorStand.remove();
-            }
-        }
+        removePlayerArmorStands(player);
 
         Location location = player.getLocation();
         ArmorStand armorStand = player.getWorld().spawn(location, ArmorStand.class);
@@ -247,11 +246,7 @@ public class Logic {
     }
 
     public void removeBlockAbovePlayer(Player player) {
-        for (ArmorStand armorStand : player.getWorld().getEntitiesByClass(ArmorStand.class)) {
-            if (armorStand.getScoreboardTags().contains(player.getUniqueId().toString())) {
-                armorStand.remove();
-            }
-        }
+        removePlayerArmorStands(player);
     }
 
     public void addPoint(@NotNull Player player) {
@@ -377,7 +372,7 @@ public class Logic {
     public void giveJokers() {
         int amount = instance.getConfig().getInt("joker");
         if (amount <= 0)
-            amount = 5;
+            amount = DEFAULT_JOKER_AMOUNT;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             UUID uuid = player.getUniqueId();
@@ -409,7 +404,7 @@ public class Logic {
         Random random = new Random();
         int amount = instance.getConfig().getInt("joker");
         if (amount <= 0)
-            amount = 5;
+            amount = DEFAULT_JOKER_AMOUNT;
 
         for (String team : teamManager.getActiveTeams()) {
             if (teamManager.getPlayersInTeam(team).isEmpty()) {
@@ -449,7 +444,7 @@ public class Logic {
         int amount = instance.getConfig().getInt("joker");
 
         if (amount <= 0)
-            amount = 5;
+            amount = DEFAULT_JOKER_AMOUNT;
         if (playersConfig.toFileConfiguration().contains(uuid + ".jokersLeft")) {
             amount = playersConfig.toFileConfiguration().getInt(uuid + ".jokersLeft");
             if (amount == 0)
@@ -475,7 +470,7 @@ public class Logic {
         int amount = instance.getConfig().getInt("joker");
 
         if (amount <= 0)
-            amount = 5;
+            amount = DEFAULT_JOKER_AMOUNT;
         if (teamsConfig.toFileConfiguration().contains(teamName + ".jokersLeft")) {
             amount = teamsConfig.toFileConfiguration().getInt(teamName + ".jokersLeft");
             if (amount == 0)

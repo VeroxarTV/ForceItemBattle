@@ -15,7 +15,7 @@ public class Data {
     BackpackManager backpackManager;
     Configs configs;
     GameCountdown gameCountdown;
-    RandomItemGenerator radomItemGenerator;
+    RandomItemGenerator randomItemGenerator;
     TaskManager taskManager;
     Logic logic;
     ResultInventoryManager resultInventoryManager;
@@ -37,8 +37,8 @@ public class Data {
     public void setGameCountdown(GameCountdown gameCountdown) {
         this.gameCountdown = gameCountdown;
     }
-    public void setRadomItemGenerator(RandomItemGenerator radomItemGenerator) {
-        this.radomItemGenerator = radomItemGenerator;
+    public void setRandomItemGenerator(RandomItemGenerator randomItemGenerator) {
+        this.randomItemGenerator = randomItemGenerator;
     }
     public void setTaskManager(TaskManager taskManager) {
         this.taskManager = taskManager;
@@ -75,8 +75,8 @@ public class Data {
     public GameCountdown getGameCountdown() {
         return gameCountdown;
     }
-    public RandomItemGenerator getRadomItemGenerator() {
-        return radomItemGenerator;
+    public RandomItemGenerator getRandomItemGenerator() {
+        return randomItemGenerator;
     }
     public TaskManager getTaskManager() {
         return taskManager;

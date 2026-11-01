@@ -283,29 +283,36 @@ public class GameListener implements Listener {
                 String playerTeamName = teamManager.getTeamName(player);
                 if (playerTeamName == null) return;
 
-                String teamName = "null";
-                String playerName = player.getName();
-                switch (playerTeamName.toLowerCase()) {
-                    case "blue" -> teamName = "§9Blue";
-                    case "red" -> teamName = "§cRed";
-                    case "yellow" -> teamName = "§eYellow";
-                    case "green" -> teamName = "§aGreen";
-                }
-                switch (playerTeamName.toLowerCase()) {
-                    case "blue" -> playerName = "§9" + playerName;
-                    case "red" -> playerName = "§c" + playerName;
-                    case "yellow" -> playerName = "§e" + playerName;
-                    case "green" -> playerName = "§a" + playerName;
-                }
-                Component prefix = LegacyComponentSerializer.legacyAmpersand().deserialize("§8[" + teamName + "§8] " + playerName + " §8>> ");
+                String colorCode = getTeamColorCode(playerTeamName);
+                String teamDisplayName = colorCode + capitalizeFirst(playerTeamName);
+                String playerName = colorCode + player.getName();
+
+                Component prefix = LegacyComponentSerializer.legacyAmpersand().deserialize("§8[" + teamDisplayName + "§8] " + playerName + " §8>> ");
                 Component message = event.message();
-                Bukkit.getConsoleSender().sendMessage(prefix.append(message));
+                Component fullMessage = prefix.append(message);
+
+                Bukkit.getConsoleSender().sendMessage(fullMessage);
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    onlinePlayer.sendMessage(prefix.append(message));
+                    onlinePlayer.sendMessage(fullMessage);
                 }
                 event.setCancelled(true);
             }
         }
+    }
+
+    private String getTeamColorCode(String teamName) {
+        return switch (teamName.toLowerCase()) {
+            case "blue" -> "§9";
+            case "red" -> "§c";
+            case "yellow" -> "§e";
+            case "green" -> "§a";
+            default -> "§7";
+        };
+    }
+
+    private String capitalizeFirst(String text) {
+        if (text == null || text.isEmpty()) return text;
+        return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
     }
 
 }

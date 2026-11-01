@@ -8,7 +8,7 @@ import org.bukkit.Material;
 public class TeamTask {
 
     Data data = ForceItemBattle.getData();
-    RandomItemGenerator randomItemGenerator = data.getRadomItemGenerator();
+    RandomItemGenerator randomItemGenerator = data.getRandomItemGenerator();
 
     private final String teamName;
     private final Material material;
